@@ -84,6 +84,7 @@ fun AnchorNavigation(appContainer: AppContainer) {
                     CompositionLocalProvider(LocalAnimatedVisibilityScope provides this@composable) {
                         DashboardScreen(
                             onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
+                            onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
                             onNavigateToAnalytics = { navController.navigate("analytics") { popUpTo("dashboard") } },
                             onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } }
                         )
@@ -93,6 +94,7 @@ fun AnchorNavigation(appContainer: AppContainer) {
                     CompositionLocalProvider(LocalAnimatedVisibilityScope provides this@composable) {
                         com.example.ui.screens.planner.PlannerScreen(
                             onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
+                            onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
                             onNavigateToAnalytics = { navController.navigate("analytics") { popUpTo("dashboard") } },
                             onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } }
                         )
@@ -106,6 +108,7 @@ fun AnchorNavigation(appContainer: AppContainer) {
                                     currentRoute = "analytics",
                                     onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
                                     onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
+                                    onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
                                     onNavigateToAnalytics = { },
                                     onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } }
                                 )
@@ -127,7 +130,8 @@ fun AnchorNavigation(appContainer: AppContainer) {
                                     currentRoute = "insights",
                                     onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
                                     onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
-                                    onNavigateToAnalytics = { navController.navigate("analytics") { popUpTo("dashboard") } },
+                                    onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
+                            onNavigateToAnalytics = { navController.navigate("analytics") { popUpTo("dashboard") } },
                                     onNavigateToAIStats = { }
                                 )
                             }

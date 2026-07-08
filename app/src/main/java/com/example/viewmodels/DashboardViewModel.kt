@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.repository.FocusRepository
 import com.example.data.repository.UsageStatsRepository
+import com.example.data.repository.UserRepository
 import com.example.data.models.FocusSession
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,12 +38,18 @@ data class DashboardState(
 
 class DashboardViewModel(
     private val focusRepository: FocusRepository,
-    private val usageStatsRepository: UsageStatsRepository
+    private val usageStatsRepository: UsageStatsRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(DashboardState())
     val uiState: StateFlow<DashboardState> = _uiState.asStateFlow()
 
     init {
+        _uiState.value = _uiState.value.copy(
+            dailyGoalMinutes = userRepository.getDailyGoalMinutes(),
+            focusStreak = "${userRepository.getStreak()} Days"
+        )
         loadDashboardData()
     }
 
@@ -57,19 +64,24 @@ class DashboardViewModel(
         viewModelScope.launch {
             focusRepository.getTotalFocusTimeSince(todayStart).collectLatest { totalMinutes ->
                 val minutes = totalMinutes ?: 0
-                val goal = _uiState.value.dailyGoalMinutes
+                
+                userRepository.updateDailyProgress(minutes)
+                
+                val goal = userRepository.getDailyGoalMinutes()
                 val progressValue = if (goal > 0) (minutes.toFloat() / goal).coerceIn(0f, 1f) else 0f
+                val streak = userRepository.getStreak()
                 
                 val screenTimeMinutes = usageStatsRepository.getTodayScreenTimeMinutes()
                 val screenTimeString = if (screenTimeMinutes > 0) formatTime(screenTimeMinutes) else if (usageStatsRepository.hasUsageStatsPermission()) "0m" else "Needs Permission"
 
                 _uiState.value = _uiState.value.copy(
+                    dailyGoalMinutes = goal,
                     progress = progressValue,
                     focusTimeToday = formatTime(minutes),
                     focusMinutesToday = minutes,
                     screenTime = screenTimeString,
-                    focusStreak = if (minutes > 0) "1 Day" else "0 Days",
-                    insightText = if (minutes > 0) "Great job focusing today! Keep up the momentum." else "You haven't focused yet today. Start a session now!",
+                    focusStreak = "$streak Days",
+                    insightText = if (minutes >= goal) "You've hit your daily goal! Excellent focus today." else if (minutes > 0) "Great job focusing today! Keep up the momentum." else "You haven't focused yet today. Start a session now!",
                     blockedAlerts = 0,
                     isLoading = false
                 )
@@ -98,6 +110,7 @@ class DashboardViewModel(
     }
 
     fun updateDailyGoal(minutes: Int) {
+        userRepository.setDailyGoalMinutes(minutes)
         val currentMinutes = _uiState.value.focusMinutesToday
         val progressValue = if (minutes > 0) (currentMinutes.toFloat() / minutes).coerceIn(0f, 1f) else 0f
         _uiState.value = _uiState.value.copy(
@@ -173,4 +186,3 @@ class DashboardViewModel(
         return if (h > 0) "${h}h ${m}m" else "${m}m"
     }
 }
-

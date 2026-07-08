@@ -50,6 +50,7 @@ import com.example.viewmodels.DashboardViewModel
 @Composable
 fun DashboardScreen(
     onNavigateToPlanner: () -> Unit,
+    onNavigateToBlocks: () -> Unit,
     onNavigateToAnalytics: () -> Unit,
     onNavigateToAIStats: () -> Unit,
     viewModel: DashboardViewModel = viewModel(factory = com.example.viewmodels.AppViewModelProvider.Factory)
@@ -287,6 +288,7 @@ fun DashboardScreen(
                 currentRoute = "dashboard",
                 onNavigateToFocus = { /* Stay on dashboard */ },
                 onNavigateToPlanner = onNavigateToPlanner,
+                onNavigateToBlocks = onNavigateToBlocks,
                 onNavigateToAnalytics = onNavigateToAnalytics,
                 onNavigateToAIStats = onNavigateToAIStats
             )
@@ -411,8 +413,15 @@ fun DashboardScreen(
                 }
 
                 // Greetings Area
+                val currentHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+                val greeting = when (currentHour) {
+                    in 5..11 -> "Good morning"
+                    in 12..16 -> "Good afternoon"
+                    in 17..20 -> "Good evening"
+                    else -> "Good night"
+                }
                 Text(
-                    text = "Good morning, ${uiState.userName ?: "there"}.",
+                    text = "$greeting, ${uiState.userName ?: "there"}.",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.White

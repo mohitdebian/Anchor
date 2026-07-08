@@ -11,7 +11,8 @@ object AppViewModelProvider {
         initializer {
             DashboardViewModel(
                 anchorApplication().container.focusRepository,
-                anchorApplication().container.usageStatsRepository
+                anchorApplication().container.usageStatsRepository,
+                anchorApplication().container.userRepository
             )
         }
         initializer {

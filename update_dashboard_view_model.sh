@@ -1,0 +1,1 @@
+sed -i 's/    init {/    init {\n        _uiState.value = _uiState.value.copy(\n            dailyGoalMinutes = userRepository.getDailyGoalMinutes(),\n            focusStreak = "${userRepository.getStreak()} Days"\n        )/g' app/src/main/java/com/example/viewmodels/DashboardViewModel.kt

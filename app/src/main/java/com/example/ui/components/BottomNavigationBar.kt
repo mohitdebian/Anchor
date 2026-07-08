@@ -1,98 +1,103 @@
 package com.example.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoGraph
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun BottomNavigationBar(
     currentRoute: String,
     onNavigateToFocus: () -> Unit,
     onNavigateToPlanner: () -> Unit,
+    onNavigateToBlocks: () -> Unit,
     onNavigateToAnalytics: () -> Unit,
     onNavigateToAIStats: () -> Unit
 ) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 24.dp, bottomEnd = 24.dp))
-            .background(Color(0xFF0F0F0F))
-            .border(1.dp, Color(0xFF222222), RoundedCornerShape(24.dp))
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 24.dp, vertical = 24.dp)
+            .clip(RoundedCornerShape(100.dp))
+            .background(Color(0xFF1C1C1E))
+            .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
-        BottomNavItem(
-            icon = Icons.Default.HourglassEmpty,
-            label = "Focus",
-            isSelected = currentRoute == "dashboard",
-            onClick = onNavigateToFocus
-        )
-        BottomNavItem(
-            icon = Icons.Default.CalendarToday,
-            label = "Planner",
-            isSelected = currentRoute == "planner",
-            onClick = onNavigateToPlanner
-        )
-        BottomNavItem(
-            icon = Icons.Default.Insights,
-            label = "Analytics",
-            isSelected = currentRoute == "analytics",
-            onClick = onNavigateToAnalytics
-        )
-        BottomNavItem(
-            icon = Icons.Default.AutoGraph,
-            label = "AI Stats",
-            isSelected = currentRoute == "insights",
-            onClick = onNavigateToAIStats
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BottomNavItem(
+                icon = Icons.Default.Home,
+                isSelected = currentRoute == "dashboard",
+                onClick = onNavigateToFocus
+            )
+            BottomNavItem(
+                icon = Icons.Default.Timer,
+                isSelected = currentRoute == "planner",
+                onClick = onNavigateToPlanner
+            )
+            BottomNavItem(
+                icon = Icons.Default.Block,
+                isSelected = currentRoute == "block",
+                onClick = onNavigateToBlocks
+            )
+            BottomNavItem(
+                icon = Icons.Default.Insights,
+                isSelected = currentRoute == "analytics",
+                onClick = onNavigateToAnalytics
+            )
+            BottomNavItem(
+                icon = Icons.Default.AutoAwesome,
+                isSelected = currentRoute == "insights",
+                onClick = onNavigateToAIStats
+            )
+        }
     }
 }
 
 @Composable
 private fun BottomNavItem(
     icon: ImageVector,
-    label: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    val interactionSource = remember { MutableInteractionSource() }
+    
+    Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .size(48.dp)
+            .clip(CircleShape)
+            .background(if (isSelected) Color(0xFF1E3A8A) else Color.Transparent)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = label,
-            tint = if (isSelected) Color(0xFF4ADE80) else Color.White,
+            contentDescription = null,
+            tint = if (isSelected) Color(0xFF3B82F6) else Color(0xFF8E8E93),
             modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            color = if (isSelected) Color(0xFF4ADE80) else Color.White
         )
     }
 }

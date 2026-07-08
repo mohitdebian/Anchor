@@ -27,6 +27,7 @@ import java.util.Locale
 @Composable
 fun PlannerScreen(
     onNavigateToFocus: () -> Unit,
+    onNavigateToBlocks: () -> Unit,
     onNavigateToAnalytics: () -> Unit,
     onNavigateToAIStats: () -> Unit,
     viewModel: PlannerViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -43,6 +44,7 @@ fun PlannerScreen(
                 currentRoute = "planner",
                 onNavigateToFocus = onNavigateToFocus,
                 onNavigateToPlanner = { },
+                onNavigateToBlocks = onNavigateToBlocks,
                 onNavigateToAnalytics = onNavigateToAnalytics,
                 onNavigateToAIStats = onNavigateToAIStats
             )
