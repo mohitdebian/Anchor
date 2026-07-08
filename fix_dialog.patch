@@ -1,0 +1,11 @@
+--- app/src/main/java/com/example/ui/screens/dashboard/DashboardScreen.kt
++++ app/src/main/java/com/example/ui/screens/dashboard/DashboardScreen.kt
+@@ -74,7 +74,7 @@
+     var selectedMinutes by remember { mutableStateOf(25) }
+ 
+     var showGoalDialog by remember { mutableStateOf(false) }
+-    var selectedGoalMinutes by remember { mutableStateOf(uiState.dailyGoalMinutes) }
++    var selectedGoalMinutes by remember(uiState.dailyGoalMinutes) { mutableStateOf(uiState.dailyGoalMinutes) }
+ 
+     if (showGoalDialog) {
+         AlertDialog(

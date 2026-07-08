@@ -1,0 +1,6 @@
+{
+  "name": "Anchor",
+  "description": "A premium Android application that helps users reduce mindless phone usage, build healthier digital habits, and stay focused on their daily goals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
