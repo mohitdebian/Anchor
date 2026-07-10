@@ -1048,8 +1048,41 @@ fun BulletItem(text: String, textColor: Color) {
     }
 }
 
+
 @Composable
 fun ValuePropStep(onNext: () -> Unit) {
+    val infiniteTransition = rememberInfiniteTransition(label = "robot_transition")
+    
+    val floatAnim by infiniteTransition.animateFloat(
+        initialValue = -15f,
+        targetValue = 15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "robot_float"
+    )
+    
+    val pulseAnim by infiniteTransition.animateFloat(
+        initialValue = 0.8f,
+        targetValue = 1.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "aura_pulse"
+    )
+    
+    val visorScanAnim by infiniteTransition.animateFloat(
+        initialValue = -15f,
+        targetValue = 15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "visor_scan"
+    )
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1066,158 +1099,137 @@ fun ValuePropStep(onNext: () -> Unit) {
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
         )
         
-        PhoneMockup(
+        Box(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 24.dp)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
+            // Aura
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .size(250.dp)
+                    .scale(pulseAnim)
                     .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFF0F1E13), Color(0xFF040604))
-                        )
-                    ),
-                contentAlignment = Alignment.TopCenter
+                        Brush.radialGradient(
+                            colors = listOf(Color(0xFF10B981).copy(alpha = 0.3f), Color.Transparent)
+                        ),
+                        shape = CircleShape
+                    )
+            )
+            
+            // Robot Character Container
+            Box(
+                modifier = Modifier
+                    .offset(y = floatAnim.dp)
+                    .size(150.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                // Head
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
+                        .offset(y = (-35).dp)
+                        .size(80.dp, 70.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color(0xFF222831))
+                        .border(2.dp, Color(0xFF393E46), RoundedCornerShape(24.dp)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    // Large timer display
+                    // Visor Track
                     Box(
                         modifier = Modifier
-                            .size(150.dp)
-                            .border(6.dp, Color(0xFF10B981).copy(alpha = 0.3f), CircleShape)
-                            .padding(8.dp),
+                            .size(50.dp, 16.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF121212)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Canvas(modifier = Modifier.fillMaxSize()) {
-                            drawArc(
-                                color = Color(0xFF10B981),
-                                startAngle = -90f,
-                                sweepAngle = 280f,
-                                useCenter = false,
-                                style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round)
-                            )
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "25:00",
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White,
-                                fontFamily = FontFamily.SansSerif
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            
-                            // App icons row
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.Red)
-                                )
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFFE1306C))
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "23 apps blocked",
-                                    fontSize = 10.sp,
-                                    color = Color.LightGray,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        }
+                        // Scanning Eye
+                        Box(
+                            modifier = Modifier
+                                .offset(x = visorScanAnim.dp)
+                                .size(16.dp, 8.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF10B981))
+                        )
                     }
                     
-                    // Carousel rows simulations
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    // Antenna
+                    Box(
+                        modifier = Modifier
+                            .offset(y = (-40).dp)
+                            .size(6.dp, 15.dp)
+                            .background(Color(0xFF393E46), RoundedCornerShape(3.dp))
+                    )
+                    Box(
+                        modifier = Modifier
+                            .offset(y = (-48).dp)
+                            .size(12.dp)
+                            .clip(CircleShape)
+                            .background(if (pulseAnim > 1.0f) Color(0xFF10B981) else Color(0xFFE1306C))
+                    )
+                }
+                
+                // Body
+                Box(
+                    modifier = Modifier
+                        .offset(y = 30.dp)
+                        .size(60.dp, 50.dp)
+                        .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp, topStart = 12.dp, topEnd = 12.dp))
+                        .background(Color(0xFF222831))
+                        .border(2.dp, Color(0xFF393E46), RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp, topStart = 12.dp, topEnd = 12.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Chest core
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .scale(pulseAnim)
+                            .clip(CircleShape)
+                            .background(Color(0xFF10B981).copy(alpha = 0.5f)),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(Color(0xFF1E281E))
-                                    .padding(10.dp)
-                            ) {
-                                Text(
-                                    text = "⛅ Evening\n6PM - 8PM",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(Color(0xFF1E281E))
-                                    .padding(10.dp)
-                            ) {
-                                Text(
-                                    text = "🌙 Night\n8PM - 10PM",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            }
-                        }
-                        
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(Color(0xFF181F18))
-                                    .padding(8.dp)
-                            ) {
-                                Text(
-                                    text = "🧬 Biology\n6PM - 9PM",
-                                    fontSize = 10.sp,
-                                    color = Color.LightGray
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(Color(0xFF181F18))
-                                    .padding(8.dp)
-                            ) {
-                                Text(
-                                    text = "🧪 Chemistry\n11PM - 7AM",
-                                    fontSize = 10.sp,
-                                    color = Color.LightGray
-                                )
-                            }
-                        }
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF10B981))
+                        )
                     }
                 }
+                
+                // Left Arm
+                Box(
+                    modifier = Modifier
+                        .offset(x = (-45).dp, y = 25.dp + (floatAnim * 0.5f).dp)
+                        .size(16.dp, 45.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF222831))
+                        .border(2.dp, Color(0xFF393E46), RoundedCornerShape(8.dp))
+                )
+                
+                // Right Arm
+                Box(
+                    modifier = Modifier
+                        .offset(x = 45.dp, y = 25.dp + (floatAnim * 0.5f).dp)
+                        .size(16.dp, 45.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF222831))
+                        .border(2.dp, Color(0xFF393E46), RoundedCornerShape(8.dp))
+                )
+            }
+            
+            // Meditating rings
+            Canvas(modifier = Modifier.size(200.dp)) {
+                drawCircle(
+                    color = Color(0xFF10B981),
+                    radius = size.width / 2 * pulseAnim,
+                    style = Stroke(width = 2.dp.toPx(), pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(20f, 20f)))
+                )
+                drawCircle(
+                    color = Color(0xFF10B981).copy(alpha = 0.5f),
+                    radius = (size.width / 2 - 20.dp.toPx()) * (2f - pulseAnim),
+                    style = Stroke(width = 1.dp.toPx())
+                )
             }
         }
         
@@ -1228,22 +1240,19 @@ fun ValuePropStep(onNext: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .testTag("schedule_now_button"),
+                .padding(horizontal = 24.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White,
                 contentColor = Color.Black
             ),
-            shape = RoundedCornerShape(28.dp)
+            shape = RoundedCornerShape(100.dp)
         ) {
-            Text(
-                text = "Schedule now!",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.SansSerif
-            )
+            Text("Schedule now!", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
+
 
 @Composable
 fun PermissionsStep(
