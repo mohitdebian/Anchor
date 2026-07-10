@@ -1,28 +1,59 @@
 import re
 
-with open('app/src/main/java/com/example/viewmodels/DashboardViewModel.kt', 'r') as f:
+file_path = "app/src/main/java/com/example/ui/screens/dashboard/DashboardScreen.kt"
+with open(file_path, "r") as f:
     content = f.read()
 
-pattern = r"(val minutes = totalMinutes \?\: 0\s+)(val goal = _uiState\.value\.dailyGoalMinutes\s+val progressValue = if \(goal > 0\) \(minutes\.toFloat\(\) \/ goal\)\.coerceIn\(0f, 1f\) else 0f\s+val screenTimeMinutes = usageStatsRepository\.getTodayScreenTimeMinutes\(\)\s+val screenTimeString = if \(screenTimeMinutes > 0\) formatTime\(screenTimeMinutes\) else if \(usageStatsRepository\.hasUsageStatsPermission\(\)\) \"0m\" else \"Needs Permission\"\s+_uiState\.value = _uiState\.value\.copy\([^)]+\))"
+schedule_ui = """
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text(
+                    text = "Today's Schedule",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                if (uiState.todaySchedules.isEmpty()) {
+                    Text(
+                        text = "No schedules for today.",
+                        color = Color.Gray,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                } else {
+                    Column(modifier = Modifier.padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        uiState.todaySchedules.forEach { schedule ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xFF132018).copy(alpha = 0.75f))
+                                    .border(1.dp, Color(0xFF10B981).copy(alpha = 0.15f), RoundedCornerShape(16.dp))
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = schedule.icon, fontSize = 24.sp)
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column {
+                                    Text(text = schedule.title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(text = "${schedule.startTime} - ${schedule.endTime}", color = Color.LightGray, fontSize = 14.sp)
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+"""
 
-replacement = r"""\1userRepository.updateDailyProgress(minutes)
-                val goal = userRepository.getDailyGoalMinutes()
-                val progressValue = if (goal > 0) (minutes.toFloat() / goal).coerceIn(0f, 1f) else 0f
-                val streak = userRepository.getStreak()
-                val screenTimeMinutes = usageStatsRepository.getTodayScreenTimeMinutes()
-                val screenTimeString = if (screenTimeMinutes > 0) formatTime(screenTimeMinutes) else if (usageStatsRepository.hasUsageStatsPermission()) "0m" else "Needs Permission"
-                _uiState.value = _uiState.value.copy(
-                    dailyGoalMinutes = goal,
-                    progress = progressValue,
-                    focusTimeToday = formatTime(minutes),
-                    focusMinutesToday = minutes,
-                    screenTime = screenTimeString,
-                    focusStreak = "$streak Days",
-                    insightText = if (minutes >= goal) "You've hit your daily goal! Excellent focus today." else if (minutes > 0) "Great job focusing today! Keep up the momentum." else "You haven't focused yet today. Start a session now!",
-                    blockedAlerts = 0,
-                    isLoading = false
-                )"""
+content = content.replace(
+    '// Streak Card',
+    schedule_ui + '\n                                // Streak Card'
+)
 
-new_content = re.sub(pattern, replacement, content)
-with open('app/src/main/java/com/example/viewmodels/DashboardViewModel.kt', 'w') as f:
-    f.write(new_content)
+with open(file_path, "w") as f:
+    f.write(content)

@@ -1,4 +1,6 @@
-package com.example.ui.screens.planner
+import os
+
+content = """package com.example.ui.screens.planner
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -284,3 +286,7 @@ fun PlannerScreen(
         )
     }
 }
+"""
+
+with open('app/src/main/java/com/example/ui/screens/planner/PlannerScreen.kt', 'w') as f:
+    f.write(content)

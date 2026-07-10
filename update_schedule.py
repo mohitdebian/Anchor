@@ -1,4 +1,6 @@
-package com.example.data.models
+import os
+
+schedule_content = """package com.example.data.models
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -13,3 +15,7 @@ data class Schedule(
     val date: String = "",
     val timestamp: Long = 0L
 )
+"""
+
+with open("app/src/main/java/com/example/data/models/Schedule.kt", "w") as f:
+    f.write(schedule_content)

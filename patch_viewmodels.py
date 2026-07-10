@@ -1,4 +1,28 @@
-package com.example.ui.screens.planner
+import os
+
+# AppViewModelProvider.kt
+with open('app/src/main/java/com/example/viewmodels/AppViewModelProvider.kt', 'r') as f:
+    content = f.read()
+
+content = content.replace(
+"""        initializer {
+            com.example.ui.screens.planner.PlannerViewModel(
+                anchorApplication().container.scheduleRepository
+            )
+        }""",
+"""        initializer {
+            com.example.ui.screens.planner.PlannerViewModel(
+                anchorApplication(),
+                anchorApplication().container.scheduleRepository
+            )
+        }"""
+)
+
+with open('app/src/main/java/com/example/viewmodels/AppViewModelProvider.kt', 'w') as f:
+    f.write(content)
+
+# PlannerViewModel.kt
+new_planner_vm = """package com.example.ui.screens.planner
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -54,7 +78,7 @@ class PlannerViewModel(
     
     private fun parseTimestamp(dateStr: String, timeStr: String): Long {
         try {
-            val format = SimpleDateFormat("yyyy-MM-dd h:mm a", Locale.getDefault())
+            val format = SimpleDateFormat("MMM d, yyyy hh:mm a", Locale.getDefault())
             val date = format.parse("$dateStr $timeStr")
             return date?.time ?: 0L
         } catch (e: Exception) {
@@ -63,3 +87,7 @@ class PlannerViewModel(
         }
     }
 }
+"""
+with open('app/src/main/java/com/example/ui/screens/planner/PlannerViewModel.kt', 'w') as f:
+    f.write(new_planner_vm)
+

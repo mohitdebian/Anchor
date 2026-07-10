@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.data.models.FocusSession
 import com.example.data.models.Schedule
 
-@Database(entities = [FocusSession::class, Schedule::class, com.example.data.models.DailyGoalRecord::class], version = 3, exportSchema = false)
+@Database(entities = [FocusSession::class, Schedule::class, com.example.data.models.DailyGoalRecord::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun focusSessionDao(): FocusSessionDao
     abstract fun scheduleDao(): ScheduleDao
@@ -20,7 +20,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AppDatabase::class.java, "anchor_database")
-                    .fallbackToDestructiveMigration(false)
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }
             }

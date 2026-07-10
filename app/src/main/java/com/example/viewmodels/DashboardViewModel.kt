@@ -6,6 +6,10 @@ import com.example.data.repository.FocusRepository
 import com.example.data.repository.UsageStatsRepository
 import com.example.data.repository.UserRepository
 import com.example.data.models.FocusSession
+import com.example.data.models.Schedule
+import com.example.data.repository.ScheduleRepository
+import java.text.SimpleDateFormat
+import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +26,7 @@ data class DashboardState(
     val insightText: String = "Loading...",
     val blockedAlerts: Int = 0,
     val recentSessions: List<FocusSession> = emptyList(),
+    val todaySchedules: List<Schedule> = emptyList(),
     val isLoading: Boolean = true,
     val dailyGoalMinutes: Int = 240,
     val userName: String? = null,
@@ -39,7 +44,8 @@ data class DashboardState(
 class DashboardViewModel(
     private val focusRepository: FocusRepository,
     private val usageStatsRepository: UsageStatsRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val scheduleRepository: ScheduleRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardState())
@@ -84,6 +90,15 @@ class DashboardViewModel(
                     insightText = if (minutes >= goal) "You've hit your daily goal! Excellent focus today." else if (minutes > 0) "Great job focusing today! Keep up the momentum." else "You haven't focused yet today. Start a session now!",
                     blockedAlerts = 0,
                     isLoading = false
+                )
+            }
+        }
+
+        viewModelScope.launch {
+            scheduleRepository.getAllSchedules().collectLatest { schedules ->
+                val todayStr = SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Calendar.getInstance().time)
+                _uiState.value = _uiState.value.copy(
+                    todaySchedules = schedules.filter { it.date == todayStr }
                 )
             }
         }

@@ -85,7 +85,7 @@ private fun BottomNavItem(
         modifier = Modifier
             .size(48.dp)
             .clip(CircleShape)
-            .background(if (isSelected) Color(0xFF1E3A8A) else Color.Transparent)
+            .background(if (isSelected) Color(0xFF163321) else Color.Transparent)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -96,7 +96,7 @@ private fun BottomNavItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = if (isSelected) Color(0xFF3B82F6) else Color(0xFF8E8E93),
+            tint = if (isSelected) Color(0xFF10B981) else Color(0xFF8E8E93),
             modifier = Modifier.size(24.dp)
         )
     }

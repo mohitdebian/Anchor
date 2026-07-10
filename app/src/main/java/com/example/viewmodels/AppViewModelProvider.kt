@@ -12,7 +12,8 @@ object AppViewModelProvider {
             DashboardViewModel(
                 anchorApplication().container.focusRepository,
                 anchorApplication().container.usageStatsRepository,
-                anchorApplication().container.userRepository
+                anchorApplication().container.userRepository,
+                anchorApplication().container.scheduleRepository
             )
         }
         initializer {
@@ -35,6 +36,7 @@ object AppViewModelProvider {
         }
         initializer {
             com.example.ui.screens.planner.PlannerViewModel(
+                anchorApplication(),
                 anchorApplication().container.scheduleRepository
             )
         }

@@ -1,4 +1,6 @@
-package com.example.ui.screens.block
+import os
+
+content = """package com.example.ui.screens.block
 
 import android.content.Context
 import android.content.Intent
@@ -168,3 +170,6 @@ fun AppBlockItem(app: AppItem, onToggle: (Boolean) -> Unit) {
         }
     }
 }
+"""
+with open('app/src/main/java/com/example/ui/screens/block/BlockScreen.kt', 'w') as f:
+    f.write(content)
