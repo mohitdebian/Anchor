@@ -140,6 +140,7 @@ class DashboardViewModel(
     private var timerJob: kotlinx.coroutines.Job? = null
 
     fun startTimer(durationMinutes: Int) {
+        sharedPreferences.edit().putBoolean("is_timer_active", true).apply()
         val totalSeconds = durationMinutes * 60
         _uiState.value = _uiState.value.copy(
             isTimerActive = true,

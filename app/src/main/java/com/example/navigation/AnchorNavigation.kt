@@ -122,49 +122,26 @@ var currentBlockedApp by remember { mutableStateOf(initialBlockedApp) }
                 }
                 composable("analytics") {
                     CompositionLocalProvider(LocalAnimatedVisibilityScope provides this@composable) {
-                        androidx.compose.material3.Scaffold(
-                            bottomBar = {
-                                com.example.ui.components.BottomNavigationBar(
-                                    currentRoute = "analytics",
-                                    onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
-                                    onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
-                                    onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
-                            
-                                    onNavigateToAnalytics = { },
-                                    onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } },
-
-                                )
-                            }
-                        ) { padding ->
-                            androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize().padding(padding)) {
-                                com.example.ui.screens.analytics.AnalyticsScreen(
-                                    onNavigateBack = { navController.popBackStack() }
-                                )
-                            }
-                        }
+                        com.example.ui.screens.analytics.AnalyticsScreen(
+                            onNavigateBack = { navController.popBackStack() },
+                            onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
+                            onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
+                            onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
+                            onNavigateToAnalytics = { },
+                            onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } }
+                        )
                     }
                 }
                 composable("insights") {
                     CompositionLocalProvider(LocalAnimatedVisibilityScope provides this@composable) {
-                        androidx.compose.material3.Scaffold(
-                            bottomBar = {
-                                com.example.ui.components.BottomNavigationBar(
-                                    currentRoute = "insights",
-                                    onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
-                                    onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
-                                    onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
-                            
+                        com.example.ui.screens.insights.InsightsScreen(
+                            onNavigateBack = { navController.popBackStack() },
+                            onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
+                            onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
+                            onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
                             onNavigateToAnalytics = { navController.navigate("analytics") { popUpTo("dashboard") } },
-                                    onNavigateToAIStats = { }
-                                )
-                            }
-                        ) { padding ->
-                            androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize().padding(padding)) {
-                                com.example.ui.screens.insights.InsightsScreen(
-                                    onNavigateBack = { navController.popBackStack() }
-                                )
-                            }
-                        }
+                            onNavigateToAIStats = { }
+                        )
                     }
                 }
                 composable("settings") {

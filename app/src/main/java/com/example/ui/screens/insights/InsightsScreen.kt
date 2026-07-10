@@ -45,6 +45,11 @@ import com.example.viewmodels.InsightsViewModel
 @Composable
 fun InsightsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToFocus: () -> Unit,
+    onNavigateToPlanner: () -> Unit,
+    onNavigateToBlocks: () -> Unit,
+    onNavigateToAnalytics: () -> Unit,
+    onNavigateToAIStats: () -> Unit,
     viewModel: InsightsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -52,16 +57,26 @@ fun InsightsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("AI Insights", fontWeight = FontWeight.Bold) },
+                title = { Text("AI Insights", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = androidx.compose.ui.graphics.Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = androidx.compose.ui.graphics.Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
-        containerColor = Color(0xFF121212)
+        containerColor = Color(0xFF121212),
+        bottomBar = {
+            com.example.ui.components.BottomNavigationBar(
+                currentRoute = "insights",
+                onNavigateToFocus = onNavigateToFocus,
+                onNavigateToPlanner = onNavigateToPlanner,
+                onNavigateToBlocks = onNavigateToBlocks,
+                onNavigateToAnalytics = onNavigateToAnalytics,
+                onNavigateToAIStats = onNavigateToAIStats
+            )
+        }
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize()) {
             com.example.ui.components.BackgroundDoodles()
