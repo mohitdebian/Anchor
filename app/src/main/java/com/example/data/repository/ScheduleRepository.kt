@@ -10,4 +10,8 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
     suspend fun insertSchedule(schedule: Schedule) {
         scheduleDao.insertSchedule(schedule)
     }
+
+    suspend fun deleteSchedule(schedule: Schedule) {
+        scheduleDao.deleteSchedule(schedule)
+    }
 }

@@ -14,6 +14,11 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -28,10 +33,21 @@ val LocalAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> 
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun AnchorNavigation(appContainer: AppContainer) {
+fun AnchorNavigation(appContainer: AppContainer, initialBlockedApp: String? = null, onClearBlockedApp: () -> Unit = {}) {
     val navController = rememberNavController()
 
-    SharedTransitionLayout {
+var currentBlockedApp by remember { mutableStateOf(initialBlockedApp) }
+    
+    if (currentBlockedApp != null) {
+        com.example.ui.screens.block.BlockedOverlayScreen(
+            packageName = currentBlockedApp ?: "",
+            onGoHome = {
+                currentBlockedApp = null
+                onClearBlockedApp()
+            }
+        )
+    } else {
+        SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             NavHost(
                 navController = navController, 
@@ -85,8 +101,10 @@ fun AnchorNavigation(appContainer: AppContainer) {
                         DashboardScreen(
                             onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
                             onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
+                            
                             onNavigateToAnalytics = { navController.navigate("analytics") { popUpTo("dashboard") } },
-                            onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } }
+                            onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } },
+                            onNavigateToSettings = { navController.navigate("settings") }
                         )
                     }
                 }
@@ -95,6 +113,8 @@ fun AnchorNavigation(appContainer: AppContainer) {
                         com.example.ui.screens.planner.PlannerScreen(
                             onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
                             onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
+                            onNavigateToAddSchedule = { date -> navController.navigate("add_schedule/$date") },
+                            onNavigateToEditSchedule = { date, id -> navController.navigate("add_schedule/$date?scheduleId=$id") },
                             onNavigateToAnalytics = { navController.navigate("analytics") { popUpTo("dashboard") } },
                             onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } }
                         )
@@ -109,8 +129,10 @@ fun AnchorNavigation(appContainer: AppContainer) {
                                     onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
                                     onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
                                     onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
+                            
                                     onNavigateToAnalytics = { },
-                                    onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } }
+                                    onNavigateToAIStats = { navController.navigate("insights") { popUpTo("dashboard") } },
+
                                 )
                             }
                         ) { padding ->
@@ -131,6 +153,7 @@ fun AnchorNavigation(appContainer: AppContainer) {
                                     onNavigateToFocus = { navController.navigate("dashboard") { popUpTo("dashboard") { inclusive = true } } },
                                     onNavigateToPlanner = { navController.navigate("planner") { popUpTo("dashboard") } },
                                     onNavigateToBlocks = { navController.navigate("block") { popUpTo("dashboard") } },
+                            
                             onNavigateToAnalytics = { navController.navigate("analytics") { popUpTo("dashboard") } },
                                     onNavigateToAIStats = { }
                                 )
@@ -151,6 +174,39 @@ fun AnchorNavigation(appContainer: AppContainer) {
                         )
                     }
                 }
+                composable(
+                    "add_schedule/{date}?scheduleId={scheduleId}",
+                    arguments = listOf(
+                        androidx.navigation.navArgument("date") { type = androidx.navigation.NavType.StringType },
+                        androidx.navigation.navArgument("scheduleId") { type = androidx.navigation.NavType.IntType; defaultValue = -1 }
+                    )
+                ) { backStackEntry ->
+                    val dateStr = backStackEntry.arguments?.getString("date") ?: ""
+                    val scheduleId = backStackEntry.arguments?.getInt("scheduleId") ?: -1
+                    CompositionLocalProvider(LocalAnimatedVisibilityScope provides this@composable) {
+                        com.example.ui.screens.planner.AddScheduleScreen(
+                            dateStr = dateStr,
+                            scheduleId = scheduleId,
+                            onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
+                }
+                composable(
+                    route = "blocked_overlay?pkg={pkg}",
+                    arguments = listOf(androidx.navigation.navArgument("pkg") { type = androidx.navigation.NavType.StringType; nullable = true })
+                ) { backStackEntry ->
+                    CompositionLocalProvider(LocalAnimatedVisibilityScope provides this@composable) {
+                        val pkg = backStackEntry.arguments?.getString("pkg") ?: ""
+                        com.example.ui.screens.block.BlockedOverlayScreen(
+                            packageName = pkg,
+                            onGoHome = {
+                                navController.navigate("dashboard") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+                }
                 composable("block") {
                     CompositionLocalProvider(LocalAnimatedVisibilityScope provides this@composable) {
                         com.example.ui.screens.block.BlockScreen(
@@ -161,4 +217,5 @@ fun AnchorNavigation(appContainer: AppContainer) {
             }
         }
     }
+}
 }

@@ -54,11 +54,7 @@ fun BottomNavigationBar(
                 isSelected = currentRoute == "planner",
                 onClick = onNavigateToPlanner
             )
-            BottomNavItem(
-                icon = Icons.Default.Block,
-                isSelected = currentRoute == "block",
-                onClick = onNavigateToBlocks
-            )
+            
             BottomNavItem(
                 icon = Icons.Default.Insights,
                 isSelected = currentRoute == "analytics",

@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.data.models.FocusSession
 import com.example.data.models.Schedule
 
-@Database(entities = [FocusSession::class, Schedule::class, com.example.data.models.DailyGoalRecord::class], version = 4, exportSchema = false)
+@Database(entities = [FocusSession::class, Schedule::class, com.example.data.models.DailyGoalRecord::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun focusSessionDao(): FocusSessionDao
     abstract fun scheduleDao(): ScheduleDao

@@ -24,17 +24,19 @@ class PlannerViewModel(
             initialValue = emptyList()
         )
         
-    fun addSchedule(title: String, startTime: String, endTime: String, date: String) {
+    fun addSchedule(title: String, startTime: String, endTime: String, date: String, blockedPackages: String = "", id: Int = -1) {
         viewModelScope.launch {
             val timestamp = parseTimestamp(date, startTime)
             val schedule = Schedule(
+                id = if (id != -1) id else 0,
                 title = title,
                 icon = "🗓️",
                 startTime = startTime,
                 endTime = endTime,
                 colorHex = "#10B981",
                 date = date,
-                timestamp = timestamp
+                timestamp = timestamp,
+                blockedPackages = blockedPackages
             )
             scheduleRepository.insertSchedule(schedule)
             
@@ -62,4 +64,12 @@ class PlannerViewModel(
             return 0L
         }
     }
+
+    fun deleteSchedule(schedule: Schedule) {
+        viewModelScope.launch {
+            scheduleRepository.deleteSchedule(schedule)
+            com.example.AlarmScheduler.cancelAlarm(getApplication(), schedule.timestamp.hashCode())
+        }
+    }
 }
+

@@ -25,6 +25,7 @@ data class DashboardState(
     val focusStreak: String = "...",
     val insightText: String = "Loading...",
     val blockedAlerts: Int = 0,
+    val blockedAppsCount: Int = 0,
     val recentSessions: List<FocusSession> = emptyList(),
     val todaySchedules: List<Schedule> = emptyList(),
     val isLoading: Boolean = true,
@@ -42,6 +43,7 @@ data class DashboardState(
 )
 
 class DashboardViewModel(
+    private val application: android.app.Application,
     private val focusRepository: FocusRepository,
     private val usageStatsRepository: UsageStatsRepository,
     private val userRepository: UserRepository,
@@ -51,11 +53,10 @@ class DashboardViewModel(
     private val _uiState = MutableStateFlow(DashboardState())
     val uiState: StateFlow<DashboardState> = _uiState.asStateFlow()
 
+    private val sharedPreferences = application.getSharedPreferences("blocked_apps", android.content.Context.MODE_PRIVATE)
+
     init {
-        _uiState.value = _uiState.value.copy(
-            dailyGoalMinutes = userRepository.getDailyGoalMinutes(),
-            focusStreak = "${userRepository.getStreak()} Days"
-        )
+        sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
         loadDashboardData()
     }
 
@@ -75,9 +76,10 @@ class DashboardViewModel(
                 
                 val goal = userRepository.getDailyGoalMinutes()
                 val progressValue = if (goal > 0) (minutes.toFloat() / goal).coerceIn(0f, 1f) else 0f
-                val streak = userRepository.getStreak()
+                val streak = userRepository.validateAndGetStreak()
                 
                 val screenTimeMinutes = usageStatsRepository.getTodayScreenTimeMinutes()
+                val blockedCount = usageStatsRepository.getBlockedAppsCount()
                 val screenTimeString = if (screenTimeMinutes > 0) formatTime(screenTimeMinutes) else if (usageStatsRepository.hasUsageStatsPermission()) "0m" else "Needs Permission"
 
                 _uiState.value = _uiState.value.copy(
@@ -89,6 +91,7 @@ class DashboardViewModel(
                     focusStreak = "$streak Days",
                     insightText = if (minutes >= goal) "You've hit your daily goal! Excellent focus today." else if (minutes > 0) "Great job focusing today! Keep up the momentum." else "You haven't focused yet today. Start a session now!",
                     blockedAlerts = 0,
+                    blockedAppsCount = blockedCount,
                     isLoading = false
                 )
             }
@@ -96,7 +99,7 @@ class DashboardViewModel(
 
         viewModelScope.launch {
             scheduleRepository.getAllSchedules().collectLatest { schedules ->
-                val todayStr = SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Calendar.getInstance().time)
+                val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
                 _uiState.value = _uiState.value.copy(
                     todaySchedules = schedules.filter { it.date == todayStr }
                 )
@@ -154,21 +157,25 @@ class DashboardViewModel(
                     remainingTimerSeconds = _uiState.value.remainingTimerSeconds - 1
                 )
             }
-            saveSession()
+            sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
+        saveSession()
         }
     }
 
     fun stopTimer() {
+        sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
         timerJob?.cancel()
         _uiState.value = _uiState.value.copy(isTimerActive = false, isTimerPaused = false)
     }
 
     fun pauseTimer() {
+        sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
         timerJob?.cancel()
         _uiState.value = _uiState.value.copy(isTimerPaused = true)
     }
 
     fun resumeTimer() {
+        sharedPreferences.edit().putBoolean("is_timer_active", true).apply()
         _uiState.value = _uiState.value.copy(isTimerPaused = false)
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
@@ -178,7 +185,8 @@ class DashboardViewModel(
                     remainingTimerSeconds = _uiState.value.remainingTimerSeconds - 1
                 )
             }
-            saveSession()
+            sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
+        saveSession()
         }
     }
 

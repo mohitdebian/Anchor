@@ -186,13 +186,25 @@ fun WeeklyChart(data: List<Float>) {
         val primaryColor = MaterialTheme.colorScheme.primary
         val surfaceColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
         
+        // Animation for the bars
+        val animationPlayed = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+        val animationProgress by androidx.compose.animation.core.animateFloatAsState(
+            targetValue = if (animationPlayed.value) 1f else 0f,
+            animationSpec = androidx.compose.animation.core.tween(durationMillis = 1000, easing = androidx.compose.animation.core.FastOutSlowInEasing)
+        )
+        
+        androidx.compose.runtime.LaunchedEffect(key1 = true) {
+            animationPlayed.value = true
+        }
+        
         Canvas(modifier = Modifier.fillMaxSize().padding(24.dp)) {
             val barWidth = (size.width / data.size) * 0.6f
             val spacing = (size.width - (barWidth * data.size)) / (data.size - 1)
             
             data.forEachIndexed { index, value ->
                 val x = index * (barWidth + spacing)
-                val barHeight = size.height * value
+                val targetHeight = size.height * value
+                val barHeight = targetHeight * animationProgress
                 val y = size.height - barHeight
                 
                 // Background bar
@@ -248,5 +260,4 @@ fun DistractingAppItem(name: String, time: String, ratio: Float) {
                     .background(MaterialTheme.colorScheme.error)
             )
         }
-    }
-}
+    }}

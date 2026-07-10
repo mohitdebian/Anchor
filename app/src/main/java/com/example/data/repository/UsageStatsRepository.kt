@@ -55,6 +55,11 @@ class UsageStatsRepository(private val context: Context) {
         return (totalForegroundTime / 1000 / 60).toInt()
     }
 
+fun getBlockedAppsCount(): Int {
+        val sharedPreferences = context.getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
+        return sharedPreferences.all.count { it.value == true }
+    }
+
     fun getTopDistractingApps(limit: Int = 3): List<AppUsageInfo> {
         if (!hasUsageStatsPermission()) return emptyList()
         

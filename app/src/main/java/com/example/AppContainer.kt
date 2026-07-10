@@ -6,7 +6,8 @@ import com.example.data.repository.FocusRepository
 import com.example.data.repository.UsageStatsRepository
 import com.example.data.repository.ScheduleRepository
 import com.example.data.repository.UserRepository
-import com.example.data.api.NvidiaNimApi
+import com.example.data.api.GeminiApiService
+import com.example.data.api.GeminiRetrofitClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import com.squareup.moshi.Moshi
@@ -15,7 +16,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 interface AppContainer {
     val focusRepository: FocusRepository
     val usageStatsRepository: UsageStatsRepository
-    val nvidiaNimApi: NvidiaNimApi
+    val geminiApiService: GeminiApiService
     val scheduleRepository: ScheduleRepository
     val userRepository: UserRepository
 }
@@ -39,15 +40,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         UserRepository(context, database.dailyGoalDao())
     }
     
-    override val nvidiaNimApi: NvidiaNimApi by lazy {
-        val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()
-            
-        Retrofit.Builder()
-            .baseUrl("https://integrate.api.nvidia.com/v1/")
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-            .create(NvidiaNimApi::class.java)
+    override val geminiApiService: GeminiApiService by lazy {
+        GeminiRetrofitClient.api
     }
 }

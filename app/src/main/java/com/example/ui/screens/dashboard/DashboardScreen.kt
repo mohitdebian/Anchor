@@ -37,6 +37,17 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+
+import android.content.pm.PackageManager
+import android.content.Intent
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import android.widget.ImageView
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.ui.screens.block.AppItem
+
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -53,12 +64,17 @@ fun DashboardScreen(
     onNavigateToBlocks: () -> Unit,
     onNavigateToAnalytics: () -> Unit,
     onNavigateToAIStats: () -> Unit,
+    onNavigateToSettings: () -> Unit = {},
     viewModel: DashboardViewModel = viewModel(factory = com.example.viewmodels.AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val scrollState = rememberScrollState()
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(Unit) {
+        viewModel.loadDashboardData()
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -79,6 +95,33 @@ fun DashboardScreen(
 
     var showTimerDialog by remember { mutableStateOf(false) }
     var selectedMinutes by remember { mutableStateOf(25) }
+
+    val sharedPreferences = remember { context.getSharedPreferences("blocked_apps", android.content.Context.MODE_PRIVATE) }
+    var manualApps by remember { mutableStateOf(emptyList<AppItem>()) }
+    var isLoadingApps by remember { mutableStateOf(true) }
+
+    LaunchedEffect(showTimerDialog) {
+        if (showTimerDialog) {
+            isLoadingApps = true
+            withContext(Dispatchers.IO) {
+                val pm = context.packageManager
+                val intent = Intent(Intent.ACTION_MAIN, null).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
+                val resolveInfoList = pm.queryIntentActivities(intent, PackageManager.GET_META_DATA)
+                val appList = mutableListOf<AppItem>()
+                for (resolveInfo in resolveInfoList) {
+                    val packageName = resolveInfo.activityInfo.packageName
+                    if (packageName != context.packageName) {
+                        val label = resolveInfo.loadLabel(pm).toString()
+                        val isBlocked = sharedPreferences.getBoolean(packageName, false)
+                        appList.add(AppItem(packageName, label, isBlocked))
+                    }
+                }
+                manualApps = appList.distinctBy { it.packageName }.sortedBy { it.name }
+                isLoadingApps = false
+            }
+        }
+    }
+
 
     var showGoalDialog by remember { mutableStateOf(false) }
     var selectedGoalMinutes by remember(uiState.dailyGoalMinutes) { mutableStateOf(uiState.dailyGoalMinutes) }
@@ -258,12 +301,12 @@ fun DashboardScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO: Settings */ }) {
+                    IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.LightGray)
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = onNavigateToSettings) {
                         if (uiState.userPhotoUrl != null) {
                             coil.compose.AsyncImage(
                                 model = uiState.userPhotoUrl,
@@ -338,37 +381,25 @@ fun DashboardScreen(
                             Spacer(modifier = Modifier.height(24.dp))
                             
                             // App icons row for blocked apps
-                            Row(
+Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color.White.copy(alpha = 0.1f))
+                                    .clickable { onNavigateToBlocks() }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFFE1306C)) // Instagram-like pink
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFF4285F4)) // Chrome/Google-like blue
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFFFBBC05)) // Myntra/Shopping yellow
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
+                                Icon(Icons.Default.Block, contentDescription = "Blocked Apps", tint = Color(0xFFFF5252), modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "6 apps blocked",
-                                    fontSize = 18.sp,
+                                    text = "${uiState.blockedAppsCount} apps blocked",
+                                    fontSize = 16.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Medium
                                 )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.LightGray, modifier = Modifier.size(16.dp))
                             }
                             
                             Spacer(modifier = Modifier.height(24.dp))

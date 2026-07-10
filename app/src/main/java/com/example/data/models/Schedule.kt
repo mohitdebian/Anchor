@@ -11,5 +11,6 @@ data class Schedule(
     val endTime: String,
     val colorHex: String,
     val date: String = "",
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    val blockedPackages: String = "" // Comma-separated list of package names
 )

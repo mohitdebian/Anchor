@@ -5,11 +5,13 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.AnchorApplication
+import com.example.ui.screens.block.BlockedOverlayViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             DashboardViewModel(
+                anchorApplication(),
                 anchorApplication().container.focusRepository,
                 anchorApplication().container.usageStatsRepository,
                 anchorApplication().container.userRepository,
@@ -24,7 +26,7 @@ object AppViewModelProvider {
         }
         initializer {
             InsightsViewModel(
-                anchorApplication().container.nvidiaNimApi,
+                anchorApplication().container.geminiApiService,
                 anchorApplication().container.focusRepository,
                 anchorApplication().container.usageStatsRepository
             )
@@ -38,6 +40,13 @@ object AppViewModelProvider {
             com.example.ui.screens.planner.PlannerViewModel(
                 anchorApplication(),
                 anchorApplication().container.scheduleRepository
+            )
+        }
+        initializer {
+            BlockedOverlayViewModel(
+                anchorApplication(),
+                anchorApplication().container.geminiApiService,
+                anchorApplication().container.usageStatsRepository
             )
         }
     }

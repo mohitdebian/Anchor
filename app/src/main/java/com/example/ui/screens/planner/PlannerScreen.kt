@@ -15,6 +15,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,12 +40,14 @@ import java.util.Locale
 fun PlannerScreen(
     onNavigateToFocus: () -> Unit,
     onNavigateToBlocks: () -> Unit,
+    onNavigateToAddSchedule: (String) -> Unit,
+    onNavigateToEditSchedule: (String, Int) -> Unit,
     onNavigateToAnalytics: () -> Unit,
     onNavigateToAIStats: () -> Unit,
     viewModel: PlannerViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val schedules by viewModel.schedules.collectAsState()
-    var showAddDialog by remember { mutableStateOf(false) }
+    
     
     // Generate next 7 days
     val dates = remember {
@@ -59,11 +63,13 @@ fun PlannerScreen(
     var selectedDate by remember { mutableStateOf(dates.first()) }
     
     val dateFormatter = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
+    val dbDateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
     val dayFormatter = remember { SimpleDateFormat("EEE", Locale.getDefault()) }
     val numFormatter = remember { SimpleDateFormat("d", Locale.getDefault()) }
     
     val selectedDateStr = dateFormatter.format(selectedDate)
-    val filteredSchedules = schedules.filter { it.date == selectedDateStr }
+    val dbDateStr = dbDateFormatter.format(selectedDate)
+    val filteredSchedules = schedules.filter { it.date == dbDateStr }
     
     val context = LocalContext.current
     var hasNotificationPermission by remember {
@@ -103,7 +109,7 @@ fun PlannerScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { showAddDialog = true },
+                onClick = { onNavigateToAddSchedule(dbDateStr) },
                 containerColor = Color(0xFF10B981),
                 contentColor = Color.White,
                 shape = RoundedCornerShape(100.dp)
@@ -206,10 +212,16 @@ fun PlannerScreen(
                             Row(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Text(text = schedule.icon, fontSize = 32.sp)
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Column {
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(text = schedule.title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(text = "${schedule.startTime} - ${schedule.endTime}", color = Color.Gray, fontSize = 14.sp)
+                                }
+                                IconButton(onClick = { onNavigateToEditSchedule(schedule.date, schedule.id) }) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.LightGray)
+                                }
+                                IconButton(onClick = { viewModel.deleteSchedule(schedule) }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red.copy(alpha = 0.7f))
                                 }
                             }
                         }
@@ -219,68 +231,4 @@ fun PlannerScreen(
         }
     }
 
-    if (showAddDialog) {
-        var title by remember { mutableStateOf("") }
-        var startTime by remember { mutableStateOf("") }
-        var endTime by remember { mutableStateOf("") }
-        
-        AlertDialog(
-            onDismissRequest = { showAddDialog = false },
-            containerColor = Color(0xFF1C1C1E),
-            title = { Text("Add Schedule", color = Color.White) },
-            text = {
-                Column {
-                    Text(text = "Date: $selectedDateStr", color = Color.LightGray, fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = title, 
-                        onValueChange = { title = it }, 
-                        label = { Text("Title") }, 
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = startTime, 
-                        onValueChange = { startTime = it }, 
-                        label = { Text("Start Time (e.g. 08:00 AM)") }, 
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = endTime, 
-                        onValueChange = { endTime = it }, 
-                        label = { Text("End Time (e.g. 10:00 AM)") }, 
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        )
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    if (title.isNotBlank() && startTime.isNotBlank() && endTime.isNotBlank()) {
-                        viewModel.addSchedule(title, startTime, endTime, selectedDateStr)
-                        showAddDialog = false
-                    }
-                }) {
-                    Text("Save", color = Color(0xFF10B981))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAddDialog = false }) {
-                    Text("Cancel", color = Color.Gray)
-                }
-            }
-        )
     }
-}

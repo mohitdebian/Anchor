@@ -3,9 +3,11 @@ package com.example.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.BuildConfig
-import com.example.data.api.NimChatRequest
-import com.example.data.api.NimMessage
-import com.example.data.api.NvidiaNimApi
+import com.example.data.api.GeminiRequest
+import com.example.data.api.GeminiContent
+import com.example.data.api.GeminiPart
+import com.example.data.api.GeminiConfig
+import com.example.data.api.GeminiApiService
 import com.example.data.repository.FocusRepository
 import com.example.data.repository.UsageStatsRepository
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +33,8 @@ data class InsightsState(
 )
 
 class InsightsViewModel(
-    private val api: NvidiaNimApi,
+
+    private val api: GeminiApiService,
     private val focusRepository: FocusRepository,
     private val usageStatsRepository: UsageStatsRepository
 ) : ViewModel() {
@@ -106,7 +109,7 @@ class InsightsViewModel(
                     )
                 }
 
-                val apiKey = BuildConfig.NVIDIA_NIM_API_KEY
+                val apiKey = BuildConfig.GEMINI_API_KEY
                 if (apiKey.isEmpty() || apiKey == "dummy") {
                     // Fall back directly to our high-quality local custom roasts without error
                     _uiState.value = InsightsState(
@@ -132,16 +135,19 @@ class InsightsViewModel(
                     ]
                 """.trimIndent()
 
-                val response = api.getInsights(
-                    authHeader = "Bearer $apiKey",
-                    request = NimChatRequest(
-                        messages = listOf(
-                            NimMessage(role = "user", content = prompt)
-                        )
+                val response = api.generateContent(
+                    apiKey = apiKey,
+                    request = GeminiRequest(
+                        contents = listOf(
+                            GeminiContent(
+                                parts = listOf(GeminiPart(text = prompt))
+                            )
+                        ),
+                        generationConfig = GeminiConfig(responseMimeType = "application/json")
                     )
                 )
-
-                var messageContent = response.choices.firstOrNull()?.message?.content ?: "[]"
+                
+                var messageContent = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text ?: "[]"
                 messageContent = messageContent.trim()
                 if (messageContent.startsWith("```json")) {
                     messageContent = messageContent.substringAfter("```json").substringBeforeLast("```").trim()

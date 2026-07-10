@@ -34,28 +34,37 @@ class AnalyticsViewModel(
     }
 
     private fun loadData() {
-        val weekStart = Calendar.getInstance().apply {
-            add(Calendar.DAY_OF_YEAR, -7)
-        }.timeInMillis
-
         viewModelScope.launch {
             val apps = withContext(Dispatchers.IO) {
-                usageStatsRepository.getTopDistractingApps(3)
+                usageStatsRepository.getTopDistractingApps(5)
             }
             
             focusRepository.getAllSessions().collectLatest { sessions ->
-                val weekSessions = sessions.filter { it.timestamp >= weekStart }
-                val totalMinutes = weekSessions.sumOf { it.durationMinutes }
+                val calendar = Calendar.getInstance()
+                calendar.set(Calendar.HOUR_OF_DAY, 0)
+                calendar.set(Calendar.MINUTE, 0)
+                calendar.set(Calendar.SECOND, 0)
+                calendar.set(Calendar.MILLISECOND, 0)
                 
-                val h = totalMinutes / 60
-                val m = totalMinutes % 60
+                val todayStart = calendar.timeInMillis
+                val weekStart = todayStart - (6L * 24 * 60 * 60 * 1000) // 7 days ago
                 
-                val chartData = MutableList(7) { 0.1f }
+                val allTimeMinutes = sessions.sumOf { it.durationMinutes }
+                val h = allTimeMinutes / 60
+                val m = allTimeMinutes % 60
                 
-                if (weekSessions.isNotEmpty()) {
-                    chartData[6] = (totalMinutes / 120f).coerceIn(0.1f, 1f)
+                // Calculate daily totals
+                val dailyTotals = FloatArray(7) { 0f }
+                for (session in sessions) {
+                    if (session.timestamp >= weekStart) {
+                        val dayIndex = ((session.timestamp - weekStart) / (24L * 60 * 60 * 1000)).toInt().coerceIn(0, 6)
+                        dailyTotals[dayIndex] += session.durationMinutes.toFloat()
+                    }
                 }
-
+                
+                val maxDaily = dailyTotals.maxOrNull()?.coerceAtLeast(60f) ?: 60f
+                val chartData = dailyTotals.map { (it / maxDaily).coerceIn(0.05f, 1f) }
+                
                 _uiState.value = AnalyticsState(
                     totalTimeSaved = if (h > 0) "${h}h ${m}m" else "${m}m",
                     focusSessionsCount = sessions.size.toString(),
@@ -65,4 +74,4 @@ class AnalyticsViewModel(
             }
         }
     }
-}
+    }
