@@ -18,7 +18,9 @@ data class AnalyticsState(
     val totalTimeSaved: String = "0h 0m",
     val focusSessionsCount: String = "0",
     val weeklyData: List<Float> = listOf(0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f),
-    val distractingApps: List<AppUsageInfo> = emptyList()
+    val distractingApps: List<AppUsageInfo> = emptyList(),
+    val screenTimeMinutes: Int = 0,
+    val hasUsagePermission: Boolean = false
 )
 
 class AnalyticsViewModel(
@@ -38,6 +40,10 @@ class AnalyticsViewModel(
             val apps = withContext(Dispatchers.IO) {
                 usageStatsRepository.getTopDistractingApps(5)
             }
+            val screenTime = withContext(Dispatchers.IO) {
+                usageStatsRepository.getTodayScreenTimeMinutes()
+            }
+            val hasPerm = usageStatsRepository.hasUsageStatsPermission()
             
             focusRepository.getAllSessions().collectLatest { sessions ->
                 val calendar = Calendar.getInstance()
@@ -69,7 +75,9 @@ class AnalyticsViewModel(
                     totalTimeSaved = if (h > 0) "${h}h ${m}m" else "${m}m",
                     focusSessionsCount = sessions.size.toString(),
                     weeklyData = chartData,
-                    distractingApps = apps
+                    distractingApps = apps,
+                    screenTimeMinutes = screenTime,
+                    hasUsagePermission = hasPerm
                 )
             }
         }

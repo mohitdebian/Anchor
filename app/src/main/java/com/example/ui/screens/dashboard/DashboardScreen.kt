@@ -16,6 +16,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -121,21 +130,17 @@ fun DashboardScreen(
             }
         }
     }
-
-
+    
     var showGoalDialog by remember { mutableStateOf(false) }
     var selectedGoalMinutes by remember(uiState.dailyGoalMinutes) { mutableStateOf(uiState.dailyGoalMinutes) }
-
-    // Entrance staggered animations triggers
+    
     var isScreenVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         isScreenVisible = true
     }
-
-    // Infinite transitions for pulsing animations
+    
     val infiniteTransition = rememberInfiniteTransition(label = "pulseTransition")
     
-    // Streak flame pulsing
     val streakPulseScale by infiniteTransition.animateFloat(
         initialValue = 0.95f,
         targetValue = 1.15f,
@@ -145,8 +150,7 @@ fun DashboardScreen(
         ),
         label = "streakPulseScale"
     )
-
-    // Main Focus Button breathing pulse (idle state)
+    
     val buttonPulseScale by infiniteTransition.animateFloat(
         initialValue = 1.0f,
         targetValue = 1.04f,
@@ -156,8 +160,7 @@ fun DashboardScreen(
         ),
         label = "buttonPulseScale"
     )
-
-    // Staggered card properties
+    
     val card1Alpha by animateFloatAsState(
         targetValue = if (isScreenVisible) 1f else 0f,
         animationSpec = tween(durationMillis = 600, delayMillis = 0, easing = FastOutSlowInEasing),
@@ -168,7 +171,6 @@ fun DashboardScreen(
         animationSpec = tween(durationMillis = 600, delayMillis = 0, easing = FastOutSlowInEasing),
         label = "card1OffsetY"
     )
-
     val card2Alpha by animateFloatAsState(
         targetValue = if (isScreenVisible) 1f else 0f,
         animationSpec = tween(durationMillis = 600, delayMillis = 100, easing = FastOutSlowInEasing),
@@ -179,7 +181,6 @@ fun DashboardScreen(
         animationSpec = tween(durationMillis = 600, delayMillis = 100, easing = FastOutSlowInEasing),
         label = "card2OffsetY"
     )
-
     val card3Alpha by animateFloatAsState(
         targetValue = if (isScreenVisible) 1f else 0f,
         animationSpec = tween(durationMillis = 600, delayMillis = 200, easing = FastOutSlowInEasing),
@@ -190,7 +191,6 @@ fun DashboardScreen(
         animationSpec = tween(durationMillis = 600, delayMillis = 200, easing = FastOutSlowInEasing),
         label = "card3OffsetY"
     )
-
     val card4Alpha by animateFloatAsState(
         targetValue = if (isScreenVisible) 1f else 0f,
         animationSpec = tween(durationMillis = 600, delayMillis = 300, easing = FastOutSlowInEasing),
@@ -201,7 +201,6 @@ fun DashboardScreen(
         animationSpec = tween(durationMillis = 600, delayMillis = 300, easing = FastOutSlowInEasing),
         label = "card4OffsetY"
     )
-
     val card5Alpha by animateFloatAsState(
         targetValue = if (isScreenVisible) 1f else 0f,
         animationSpec = tween(durationMillis = 600, delayMillis = 400, easing = FastOutSlowInEasing),
@@ -212,7 +211,7 @@ fun DashboardScreen(
         animationSpec = tween(durationMillis = 600, delayMillis = 400, easing = FastOutSlowInEasing),
         label = "card5OffsetY"
     )
-
+    
     if (showGoalDialog) {
         AlertDialog(
             onDismissRequest = { showGoalDialog = false },
@@ -226,8 +225,8 @@ fun DashboardScreen(
                     Slider(
                         value = selectedGoalMinutes.toFloat(),
                         onValueChange = { selectedGoalMinutes = it.toInt() },
-                        valueRange = 30f..480f, // 30m to 8h
-                        steps = 14 // 30m steps
+                        valueRange = 30f..480f,
+                        steps = 14
                     )
                 }
             },
@@ -252,13 +251,46 @@ fun DashboardScreen(
         )
     }
 
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    
     if (showTimerDialog) {
-        AlertDialog(
+        ModalBottomSheet(
             onDismissRequest = { showTimerDialog = false },
-            title = { Text("Set Focus Duration") },
-            text = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("$selectedMinutes Minutes", style = MaterialTheme.typography.headlineMedium)
+            sheetState = sheetState,
+            containerColor = Color(0xFF1C1C1E),
+            modifier = Modifier.fillMaxHeight(0.9f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+            ) {
+                Text(
+                    "Configure Session",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+
+                Text(
+                    "DURATION",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray,
+                    letterSpacing = 1.5.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFF2C2C2E))
+                        .padding(24.dp)
+                ) {
+                    Text("$selectedMinutes Minutes", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Spacer(modifier = Modifier.height(16.dp))
                     Slider(
                         value = selectedMinutes.toFloat(),
                         onValueChange = { selectedMinutes = it.toInt() },
@@ -266,27 +298,73 @@ fun DashboardScreen(
                         steps = 22
                     )
                 }
-            },
-            confirmButton = {
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Text(
+                    "APPS TO BLOCK",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray,
+                    letterSpacing = 1.5.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (isLoadingApps) {
+                    Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color(0xFF10B981))
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xFF2C2C2E))
+                    ) {
+                        items(manualApps) { app ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(app.name, color = Color.White, fontSize = 16.sp)
+                                Switch(
+                                    checked = app.isBlocked,
+                                    onCheckedChange = { checked ->
+                                        sharedPreferences.edit().putBoolean(app.packageName, checked).apply()
+                                        val index = manualApps.indexOfFirst { it.packageName == app.packageName }
+                                        if (index != -1) {
+                                            val newList = manualApps.toMutableList()
+                                            newList[index] = app.copy(isBlocked = checked)
+                                            manualApps = newList
+                                        }
+                                    },
+                                    colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = Color(0xFF10B981))
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
                 GlowingButton(
                     onClick = {
                         showTimerDialog = false
                         viewModel.startTimer(selectedMinutes)
                     },
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
                     color = Color(0xFF10B981),
                     contentColor = Color.White
                 ) {
-                    Text("Start")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showTimerDialog = false }) {
-                    Text("Cancel")
+                    Text("Start Focus Session", fontWeight = FontWeight.Bold)
                 }
             }
-        )
+        }
     }
+
 
     Scaffold(
         containerColor = Color(0xFF121212), // Very dark background
@@ -665,122 +743,6 @@ Row(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // Screen Time and Blocked Alerts Cards
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .graphicsLayer {
-                            alpha = card3Alpha
-                            translationY = card3OffsetY.toPx()
-                        },
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Screen Time Card
-                    StyledGlassCard(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { if (uiState.screenTime == "Needs Permission") viewModel.requestUsagePermission(context) },
-                        borderColor = Color(0xFF00C7FF).copy(alpha = 0.15f)
-                    ) {
-                        Column(modifier = Modifier.padding(20.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "SCREEN TIME",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Gray,
-                                    letterSpacing = 1.sp
-                                )
-                                Icon(
-                                    Icons.Default.PhoneIphone,
-                                    contentDescription = "Screen Time",
-                                    tint = Color.LightGray,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = uiState.screenTime,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.Default.TrendingDown,
-                                    contentDescription = "Trending Down",
-                                    tint = Color(0xFF30D158),
-                                    modifier = Modifier.size(12.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "-12% vs yesterday",
-                                    fontSize = 11.sp,
-                                    color = Color.LightGray
-                                )
-                            }
-                        }
-                    }
-                    
-                    // Blocked Alerts Card
-                    StyledGlassCard(
-                        modifier = Modifier.weight(1f),
-                        borderColor = Color(0xFFFF453A).copy(alpha = 0.15f)
-                    ) {
-                        Column(modifier = Modifier.padding(20.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "BLOCKED",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Gray,
-                                    letterSpacing = 1.sp
-                                )
-                                Icon(
-                                    Icons.Default.Block,
-                                    contentDescription = "Blocked",
-                                    tint = Color.LightGray,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "${uiState.blockedAlerts} Alerts",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.Default.Shield,
-                                    contentDescription = "Shield",
-                                    tint = Color(0xFF30D158),
-                                    modifier = Modifier.size(12.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "High Security",
-                                    fontSize = 11.sp,
-                                    color = Color.LightGray,
-                                    lineHeight = 14.sp
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(28.dp))
-                
                 if (!uiState.isTimerActive) {
                     // Start Focus Session Button with inviting breathing animation
                     Box(
@@ -807,57 +769,6 @@ Row(
                 }
                 
                 Spacer(modifier = Modifier.height(32.dp))
-                
-                // Recent Activity Header
-                Text(
-                    text = "RECENT ACTIVITY",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Gray,
-                    letterSpacing = 1.5.sp,
-                    modifier = Modifier.graphicsLayer {
-                        alpha = card5Alpha
-                        translationY = card5OffsetY.toPx()
-                    }
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Recent Activity List Container
-                StyledGlassCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .graphicsLayer {
-                            alpha = card5Alpha
-                            translationY = card5OffsetY.toPx()
-                        },
-                    borderColor = Color(0xFF333333).copy(alpha = 0.2f)
-                ) {
-                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                        if (uiState.recentSessions.isEmpty()) {
-                            Text(
-                                text = "No recent sessions.",
-                                color = Color.Gray,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        } else {
-                            uiState.recentSessions.forEachIndexed { index, session ->
-                                val formatter = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
-                                val timeStr = formatter.format(java.util.Date(session.timestamp))
-                                ActivityItem(
-                                    icon = Icons.Default.Anchor,
-                                    title = "Deep Work Session",
-                                    subtitle = "Completed • +${session.durationMinutes}m",
-                                    time = timeStr,
-                                    iconBgColor = Color(0xFF163321)
-                                )
-                                if (index < uiState.recentSessions.size - 1) {
-                                    HorizontalDivider(color = Color(0xFF333333).copy(alpha = 0.4f), modifier = Modifier.padding(horizontal = 20.dp))
-                                }
-                            }
-                        }
-                    }
-                }
                 
                 Spacer(modifier = Modifier.height(32.dp))
             }

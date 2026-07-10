@@ -1,5 +1,11 @@
 package com.example.ui.screens.analytics
 
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.filled.PhoneIphone
+import androidx.compose.ui.platform.LocalContext
+
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -118,6 +124,54 @@ fun AnalyticsScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
             
+            val h = uiState.screenTimeMinutes / 60
+            val m = uiState.screenTimeMinutes % 60
+            val screenTimeStr = if (h > 0) "${h}h ${m}m" else "${m}m"
+            val displayTime = if (!uiState.hasUsagePermission) "Needs Permission" else screenTimeStr
+            val context = LocalContext.current
+
+            GlassCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        if (!uiState.hasUsagePermission) {
+                            val intent = android.content.Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+                                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            context.startActivity(intent)
+                        }
+                    }
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "SCREEN TIME",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Gray,
+                            letterSpacing = 1.sp
+                        )
+                        Icon(
+                            Icons.Default.PhoneIphone,
+                            contentDescription = "Screen Time",
+                            tint = Color.LightGray,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = displayTime,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+
             Text(
                 text = "Weekly Trend",
                 style = MaterialTheme.typography.titleLarge,

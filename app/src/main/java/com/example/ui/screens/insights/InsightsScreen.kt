@@ -75,7 +75,7 @@ fun InsightsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "Powered by Google Gemini ✨",
+                    text = "Powered by NVIDIA NIM ✨",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -88,7 +88,7 @@ fun InsightsScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, strokeWidth = 3.dp, modifier = Modifier.size(48.dp))
                             Spacer(modifier = Modifier.height(16.dp))
-                            Text("Gemini is analyzing your focus...", color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
+                            Text("NVIDIA NIM is analyzing your focus...", color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 } else if (uiState.error != null) {
