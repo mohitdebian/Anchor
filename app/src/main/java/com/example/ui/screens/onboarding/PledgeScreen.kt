@@ -77,7 +77,7 @@ fun PledgeScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFF121212) // Consistent with onboarding
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background // Consistent with onboarding
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize()) {
             com.example.ui.components.BackgroundDoodles()
@@ -123,7 +123,7 @@ fun PledgeScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "A pledge to yourself",
-                    color = Color.LightGray,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.SansSerif
@@ -136,7 +136,7 @@ fun PledgeScreen(
                 text = "Take the Pledge",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                 fontFamily = FontFamily.SansSerif,
                 letterSpacing = (-0.5).sp
             )
@@ -146,7 +146,7 @@ fun PledgeScreen(
             Text(
                 text = "Press and hold your thumb\nto commit to your goals.",
                 fontSize = 16.sp,
-                color = Color.LightGray,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 lineHeight = 24.sp,
                 fontFamily = FontFamily.SansSerif,
@@ -259,7 +259,7 @@ fun PledgeScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Hold for",
-                            color = Color.LightGray,
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
                             fontFamily = FontFamily.SansSerif,
                             fontWeight = FontWeight.Bold

@@ -15,6 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.MusicOff
+
 import androidx.compose.material3.*
 
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +29,16 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 
 import androidx.compose.runtime.*
+
+import coil.compose.AsyncImage
+import coil.ImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import android.os.Build
+
+import android.webkit.WebView
+import androidx.compose.ui.viewinterop.AndroidView
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -257,7 +270,7 @@ fun DashboardScreen(
         ModalBottomSheet(
             onDismissRequest = { showTimerDialog = false },
             sheetState = sheetState,
-            containerColor = Color(0xFF1C1C1E),
+            containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
             modifier = Modifier.fillMaxHeight(0.9f)
         ) {
             Column(
@@ -269,7 +282,7 @@ fun DashboardScreen(
                     "Configure Session",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
@@ -277,7 +290,7 @@ fun DashboardScreen(
                     "DURATION",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Gray,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                     letterSpacing = 1.5.sp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -286,10 +299,10 @@ fun DashboardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFF2C2C2E))
+                        .background(androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant)
                         .padding(24.dp)
                 ) {
-                    Text("$selectedMinutes Minutes", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("$selectedMinutes Minutes", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
                     Spacer(modifier = Modifier.height(16.dp))
                     Slider(
                         value = selectedMinutes.toFloat(),
@@ -305,7 +318,7 @@ fun DashboardScreen(
                     "APPS TO BLOCK",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Gray,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                     letterSpacing = 1.5.sp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -320,7 +333,7 @@ fun DashboardScreen(
                             .fillMaxWidth()
                             .weight(1f)
                             .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xFF2C2C2E))
+                            .background(androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         items(manualApps) { app ->
                             Row(
@@ -330,7 +343,7 @@ fun DashboardScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(app.name, color = Color.White, fontSize = 16.sp)
+                                Text(app.name, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
                                 Switch(
                                     checked = app.isBlocked,
                                     onCheckedChange = { checked ->
@@ -367,7 +380,7 @@ fun DashboardScreen(
 
 
     Scaffold(
-        containerColor = Color(0xFF121212), // Very dark background
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background, // Very dark background
         topBar = {
             TopAppBar(
                 title = {
@@ -375,12 +388,12 @@ fun DashboardScreen(
                         text = "Anchor",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        color = Color.White
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.LightGray)
+                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 },
                 actions = {
@@ -395,7 +408,7 @@ fun DashboardScreen(
                                 contentScale = androidx.compose.ui.layout.ContentScale.Crop
                             )
                         } else {
-                            Icon(Icons.Default.AccountCircle, contentDescription = "Profile", tint = Color.LightGray)
+                            Icon(Icons.Default.AccountCircle, contentDescription = "Profile", tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 },
@@ -447,6 +460,34 @@ fun DashboardScreen(
                                 color = if (uiState.isTimerPaused) Color.Gray else Color(0xFF059669),
                                 letterSpacing = 2.sp
                             )
+
+                            if (!uiState.isTimerPaused) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                AndroidView(
+                                    factory = { ctx ->
+                                        WebView(ctx).apply {
+                                            settings.javaScriptEnabled = true
+                                            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                                            loadDataWithBaseURL(null, """
+                                            <!DOCTYPE html>
+                                            <html>
+                                            <head>
+                                            <style>
+                                            body { margin: 0; padding: 0; background-color: transparent; display: flex; justify-content: center; align-items: center; }
+                                            .tenor-gif-embed { width: 100%; max-width: 150px; border-radius: 16px; overflow: hidden; }
+                                            </style>
+                                            </head>
+                                            <body>
+                                            <div class="tenor-gif-embed" data-postid="23485600" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/focus-work-hard-concentrate-study-gif-23485600">Focus Work Hard GIF</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+                                            </body>
+                                            </html>
+                                            """, "text/html", "utf-8", null)
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(16.dp))
+                                )
+                            }
+
                             Spacer(modifier = Modifier.height(16.dp))
                             val minutes = uiState.remainingTimerSeconds / 60
                             val seconds = uiState.remainingTimerSeconds % 60
@@ -454,7 +495,7 @@ fun DashboardScreen(
                                 text = String.format(java.util.Locale.getDefault(), "%02d:%02d", minutes, seconds),
                                 fontSize = 64.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                             )
                             Spacer(modifier = Modifier.height(24.dp))
                             
@@ -473,15 +514,15 @@ Row(
                                 Text(
                                     text = "${uiState.blockedAppsCount} apps blocked",
                                     fontSize = 16.sp,
-                                    color = Color.White,
+                                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.LightGray, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                             }
                             
                             Spacer(modifier = Modifier.height(24.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                 if (uiState.isTimerPaused) {
                                     GlowingButton(
                                         onClick = { viewModel.resumeTimer() },
@@ -506,7 +547,7 @@ Row(
                                     }
                                 }
                                 GlowingButton(
-                                    onClick = { viewModel.stopTimer() },
+                                    onClick = { viewModel.stopTimer((context.applicationContext as com.example.AnchorApplication).container.ambientSoundManager) },
                                     modifier = Modifier.weight(1f),
                                     color = Color.Red.copy(alpha = 0.7f),
                                     contentColor = Color.White
@@ -516,6 +557,22 @@ Row(
                                     Text("Stop")
                                 }
                             }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            val ambientSoundManager = (context.applicationContext as com.example.AnchorApplication).container.ambientSoundManager
+                            GlowingButton(
+                                onClick = { viewModel.toggleAmbientSound(ambientSoundManager) },
+                                modifier = Modifier.fillMaxWidth(),
+                                color = if (uiState.isAmbientPlaying) Color(0xFF10B981) else Color(0xFF333333),
+                                contentColor = Color.White
+                            ) {
+                                Icon(
+                                    if (uiState.isAmbientPlaying) Icons.Default.MusicOff else Icons.Default.MusicNote,
+                                    contentDescription = "White Noise"
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(if (uiState.isAmbientPlaying) "Stop White Noise" else "Play White Noise")
+                            }
+
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
@@ -533,14 +590,44 @@ Row(
                     text = "$greeting, ${uiState.userName ?: "there"}.",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = uiState.insightText,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.LightGray
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                if (uiState.progress >= 1f) {
+                    AsyncImage(
+                        model = "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
+                        imageLoader = ImageLoader.Builder(context).components {
+                            if (Build.VERSION.SDK_INT >= 28) {
+                                add(ImageDecoderDecoder.Factory())
+                            } else {
+                                add(GifDecoder.Factory())
+                            }
+                        }.build(),
+                        contentDescription = "Celebrate GIF",
+                        modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(16.dp))
+                    )
+                } else {
+                    AsyncImage(
+                        model = "https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif",
+                        imageLoader = ImageLoader.Builder(context).components {
+                            if (Build.VERSION.SDK_INT >= 28) {
+                                add(ImageDecoderDecoder.Factory())
+                            } else {
+                                add(GifDecoder.Factory())
+                            }
+                        }.build(),
+                        contentDescription = "Cheer GIF",
+                        modifier = Modifier.fillMaxWidth().height(120.dp).clip(RoundedCornerShape(16.dp))
+                    )
+                }
+
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
@@ -550,7 +637,7 @@ Row(
                 Text(
                     text = "Today's Schedule",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
@@ -560,7 +647,7 @@ Row(
                 if (uiState.todaySchedules.isEmpty()) {
                     Text(
                         text = "No schedules for today.",
-                        color = Color.Gray,
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
                 } else {
@@ -578,9 +665,9 @@ Row(
                                 Text(text = schedule.icon, fontSize = 24.sp)
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column {
-                                    Text(text = schedule.title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    Text(text = schedule.title, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    Text(text = "${schedule.startTime} - ${schedule.endTime}", color = Color.LightGray, fontSize = 14.sp)
+                                    Text(text = "${schedule.startTime} - ${schedule.endTime}", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                                 }
                             }
                         }
@@ -625,14 +712,14 @@ Row(
                                 text = "CURRENT STREAK",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.Gray,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                                 letterSpacing = 1.sp
                             )
                             Text(
                                 text = uiState.focusStreak,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }
@@ -660,13 +747,13 @@ Row(
                                 text = "TODAY'S FOCUS TIME",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.Gray,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                                 letterSpacing = 1.5.sp
                             )
                             Icon(
                                 Icons.Default.Timer,
                                 contentDescription = "Timer",
-                                tint = Color.LightGray,
+                                tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -678,7 +765,7 @@ Row(
                                 text = uiState.focusTimeToday,
                                 fontSize = 48.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             val h = uiState.dailyGoalMinutes / 60
@@ -698,13 +785,13 @@ Row(
                                     Text(
                                         text = "/ $goalStr goal",
                                         fontSize = 12.sp,
-                                        color = Color.LightGray
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Icon(
                                         Icons.Default.Edit,
                                         contentDescription = "Edit Goal",
-                                        tint = Color.LightGray,
+                                        tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(12.dp)
                                     )
                                 }
@@ -761,7 +848,7 @@ Row(
                             color = Color(0xFF059669), // Vivid blue
                             contentColor = Color.White
                         ) {
-                            Icon(Icons.Default.PlayArrow, contentDescription = "Play", tint = Color.White)
+                            Icon(Icons.Default.PlayArrow, contentDescription = "Play", tint = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Start Focus Session", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
@@ -813,7 +900,7 @@ fun ActivityItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title: S
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Color.LightGray,
+                tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -825,19 +912,19 @@ fun ActivityItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title: S
                 text = title,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                color = Color.White
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
             )
             Text(
                 text = subtitle,
                 fontSize = 12.sp,
-                color = Color.LightGray
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         
         Text(
             text = time,
             fontSize = 12.sp,
-            color = Color.LightGray
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

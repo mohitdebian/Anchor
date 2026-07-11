@@ -19,10 +19,10 @@ fun GlassCard(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
+            .background(androidx.compose.ui.graphics.Color(0xFF132018).copy(alpha = 0.75f))
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                color = androidx.compose.ui.graphics.Color(0xFF10B981).copy(alpha = 0.15f),
                 shape = RoundedCornerShape(24.dp)
             ),
         content = content

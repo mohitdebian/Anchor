@@ -107,16 +107,16 @@ fun AnalyticsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Analytics", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 20.sp, color = androidx.compose.ui.graphics.Color.White) },
+                title = { Text("Analytics", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 20.sp, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = androidx.compose.ui.graphics.Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
-        containerColor = Color(0xFF121212),
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
         bottomBar = {
             com.example.ui.components.BottomNavigationBar(
                 currentRoute = "analytics",
@@ -167,13 +167,13 @@ fun AnalyticsScreen(
                             text = "SCREEN TIME",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Gray,
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                             letterSpacing = 1.sp
                         )
                         Icon(
                             Icons.Default.PhoneIphone,
                             contentDescription = "Screen Time",
-                            tint = Color.LightGray,
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -182,7 +182,7 @@ fun AnalyticsScreen(
                         text = displayTime,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                     )
                 }
             }

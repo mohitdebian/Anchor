@@ -51,7 +51,7 @@ var currentBlockedApp by remember { mutableStateOf(initialBlockedApp) }
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             NavHost(
                 navController = navController, 
-                startDestination = "onboarding",
+                startDestination = if (androidx.compose.ui.platform.LocalContext.current.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).getBoolean("onboarding_complete", false)) "dashboard" else "onboarding",
                 enterTransition = { slideInHorizontally(initialOffsetX = { 1000 }) + fadeIn() },
                 exitTransition = { slideOutHorizontally(targetOffsetX = { -1000 }) + fadeOut() },
                 popEnterTransition = { slideInHorizontally(initialOffsetX = { -1000 }) + fadeIn() },
@@ -82,13 +82,16 @@ var currentBlockedApp by remember { mutableStateOf(initialBlockedApp) }
                 }
                 composable("pledge") {
                     CompositionLocalProvider(LocalAnimatedVisibilityScope provides this@composable) {
+                        val context = androidx.compose.ui.platform.LocalContext.current
                         PledgeScreen(
                             onFinish = {
+                                context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit().putBoolean("onboarding_complete", true).apply()
                                 navController.navigate("dashboard") {
                                     popUpTo("pledge") { inclusive = true }
                                 }
                             },
                             onSkip = {
+                                context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit().putBoolean("onboarding_complete", true).apply()
                                 navController.navigate("dashboard") {
                                     popUpTo("pledge") { inclusive = true }
                                 }
@@ -147,7 +150,8 @@ var currentBlockedApp by remember { mutableStateOf(initialBlockedApp) }
                 composable("settings") {
                     CompositionLocalProvider(LocalAnimatedVisibilityScope provides this@composable) {
                         com.example.ui.screens.settings.SettingsScreen(
-                            onNavigateBack = { navController.popBackStack() }
+                            onNavigateBack = { navController.popBackStack() },
+                            themeManager = appContainer.themeManager
                         )
                     }
                 }

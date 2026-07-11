@@ -30,15 +30,32 @@ private val DarkColorScheme = darkColorScheme(
     onErrorContainer = Color.White
 )
 
-private val LightColorScheme = DarkColorScheme // Force dark theme
+private val LightColorScheme = lightColorScheme(
+    primary = PrimaryAccent,
+    secondary = SecondaryAccent,
+    tertiary = TertiaryAccent,
+    background = BackgroundLight,
+    surface = SurfaceLight,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = TextPrimaryLight,
+    onSurface = TextPrimaryLight,
+    surfaceVariant = SurfaceVariantLight,
+    onSurfaceVariant = TextSecondaryLight,
+    outline = Color(0xFFCBD5E1),
+    error = ErrorRed,
+    errorContainer = ErrorRed.copy(alpha = 0.2f),
+    onErrorContainer = Color.White
+)
 
 @Composable
 fun AnchorTheme(
-  darkTheme: Boolean = true, // Always dark
+  darkTheme: Boolean = true,
   dynamicColor: Boolean = false, // Disable dynamic colors
   content: @Composable () -> Unit,
 ) {
-  val colorScheme = DarkColorScheme
+  val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
 
   MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)

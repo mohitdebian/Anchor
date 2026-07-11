@@ -57,17 +57,17 @@ fun BlockScreen(onNavigateBack: () -> Unit) {
     }
 
     Scaffold(
-        containerColor = Color(0xFF121212),
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Blocked Apps", color = Color.White) },
+                title = { Text("Blocked Apps", color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF121212)
+                    containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background
                 )
             )
         }
@@ -83,7 +83,7 @@ fun BlockScreen(onNavigateBack: () -> Unit) {
             Text(
                 text = "Manage your focus by selecting which apps to block during active sessions.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.LightGray
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
             )
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -94,7 +94,7 @@ fun BlockScreen(onNavigateBack: () -> Unit) {
                 }
             } else if (apps.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No installable apps found.", color = Color.Gray)
+                    Text("No installable apps found.", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(
@@ -148,7 +148,7 @@ fun AppBlockItem(app: AppItem, onToggle: (Boolean) -> Unit) {
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = app.name,
-                    color = Color.White,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 1

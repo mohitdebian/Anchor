@@ -39,7 +39,8 @@ data class DashboardState(
     val isTimerPaused: Boolean = false,
     val totalTimerSeconds: Int = 0,
     val remainingTimerSeconds: Int = 0,
-    val activeDurationMinutes: Int = 0
+    val activeDurationMinutes: Int = 0,
+    val isAmbientPlaying: Boolean = false
 )
 
 class DashboardViewModel(
@@ -56,7 +57,7 @@ class DashboardViewModel(
     private val sharedPreferences = application.getSharedPreferences("blocked_apps", android.content.Context.MODE_PRIVATE)
 
     init {
-        sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
+        restoreTimerState()
         loadDashboardData()
     }
 
@@ -140,8 +141,15 @@ class DashboardViewModel(
     private var timerJob: kotlinx.coroutines.Job? = null
 
     fun startTimer(durationMinutes: Int) {
-        sharedPreferences.edit().putBoolean("is_timer_active", true).apply()
         val totalSeconds = durationMinutes * 60
+        sharedPreferences.edit()
+            .putBoolean("is_timer_active", true)
+            .putBoolean("is_timer_paused", false)
+            .putLong("timer_end_time", System.currentTimeMillis() + totalSeconds * 1000L)
+            .putInt("total_timer_seconds", totalSeconds)
+            .putInt("active_duration_minutes", durationMinutes)
+            .apply()
+            
         _uiState.value = _uiState.value.copy(
             isTimerActive = true,
             isTimerPaused = false,
@@ -149,35 +157,52 @@ class DashboardViewModel(
             remainingTimerSeconds = totalSeconds,
             activeDurationMinutes = durationMinutes
         )
-        
-        timerJob?.cancel()
-        timerJob = viewModelScope.launch {
-            while (_uiState.value.remainingTimerSeconds > 0) {
-                kotlinx.coroutines.delay(1000)
-                _uiState.value = _uiState.value.copy(
-                    remainingTimerSeconds = _uiState.value.remainingTimerSeconds - 1
-                )
-            }
-            sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
-        saveSession()
+        resumeTimerJob()
+    }
+
+    fun toggleAmbientSound(soundManager: com.example.services.AmbientSoundManager) {
+        if (soundManager.isPlaying()) {
+            soundManager.stop()
+            _uiState.value = _uiState.value.copy(isAmbientPlaying = false)
+        } else {
+            soundManager.play()
+            _uiState.value = _uiState.value.copy(isAmbientPlaying = true)
         }
     }
 
-    fun stopTimer() {
-        sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
+    fun stopTimer(soundManager: com.example.services.AmbientSoundManager) {
+        soundManager.stop()
+        _uiState.value = _uiState.value.copy(isAmbientPlaying = false)
+
+        sharedPreferences.edit()
+            .putBoolean("is_timer_active", false)
+            .putBoolean("is_timer_paused", false)
+            .apply()
         timerJob?.cancel()
         _uiState.value = _uiState.value.copy(isTimerActive = false, isTimerPaused = false)
     }
 
     fun pauseTimer() {
-        sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
+        sharedPreferences.edit()
+            .putBoolean("is_timer_active", false)
+            .putBoolean("is_timer_paused", true)
+            .putInt("remaining_seconds_when_paused", _uiState.value.remainingTimerSeconds)
+            .apply()
         timerJob?.cancel()
         _uiState.value = _uiState.value.copy(isTimerPaused = true)
     }
 
     fun resumeTimer() {
-        sharedPreferences.edit().putBoolean("is_timer_active", true).apply()
+        sharedPreferences.edit()
+            .putBoolean("is_timer_active", true)
+            .putBoolean("is_timer_paused", false)
+            .putLong("timer_end_time", System.currentTimeMillis() + _uiState.value.remainingTimerSeconds * 1000L)
+            .apply()
         _uiState.value = _uiState.value.copy(isTimerPaused = false)
+        resumeTimerJob()
+    }
+
+    private fun resumeTimerJob() {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
             while (_uiState.value.remainingTimerSeconds > 0) {
@@ -187,7 +212,44 @@ class DashboardViewModel(
                 )
             }
             sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
-        saveSession()
+            saveSession()
+        }
+    }
+    
+    private fun restoreTimerState() {
+        val isActive = sharedPreferences.getBoolean("is_timer_active", false)
+        val isPaused = sharedPreferences.getBoolean("is_timer_paused", false)
+        val endTime = sharedPreferences.getLong("timer_end_time", 0L)
+        val remainingWhenPaused = sharedPreferences.getInt("remaining_seconds_when_paused", 0)
+        val totalSecs = sharedPreferences.getInt("total_timer_seconds", 0)
+        val activeMins = sharedPreferences.getInt("active_duration_minutes", 0)
+
+        if (isActive) {
+            val now = System.currentTimeMillis()
+            if (endTime > now) {
+                val remaining = ((endTime - now) / 1000).toInt()
+                _uiState.value = _uiState.value.copy(
+                    isTimerActive = true,
+                    isTimerPaused = false,
+                    totalTimerSeconds = totalSecs,
+                    remainingTimerSeconds = remaining,
+                    activeDurationMinutes = activeMins
+                )
+                resumeTimerJob()
+            } else {
+                _uiState.value = _uiState.value.copy(activeDurationMinutes = activeMins)
+                saveSession()
+            }
+        } else if (isPaused) {
+            _uiState.value = _uiState.value.copy(
+                isTimerActive = true,
+                isTimerPaused = true,
+                totalTimerSeconds = totalSecs,
+                remainingTimerSeconds = remainingWhenPaused,
+                activeDurationMinutes = activeMins
+            )
+        } else {
+            sharedPreferences.edit().putBoolean("is_timer_active", false).apply()
         }
     }
 

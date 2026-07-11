@@ -4,6 +4,9 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import android.webkit.WebView
+import androidx.compose.ui.viewinterop.AndroidView
+
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -11,6 +14,13 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+
+import coil.compose.AsyncImage
+import coil.ImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import android.os.Build
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -85,7 +95,7 @@ fun OnboardingScreen(
     val totalSteps = 8
     
     Scaffold(
-        containerColor = Color(0xFF121212) // Dashboard background color
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background // Dashboard background color
     ) { padding ->
         Box(
             modifier = Modifier
@@ -242,12 +252,14 @@ fun WelcomeStep(onNext: () -> Unit) {
         Text(
             text = "Reclaim your focus. Build stable, calm study habits with smart scheduling.",
             fontSize = 16.sp,
-            color = Color.LightGray,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             fontFamily = FontFamily.SansSerif,
             lineHeight = 24.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
         
         Spacer(modifier = Modifier.weight(0.3f))
         
@@ -555,7 +567,7 @@ fun StudyTimeStep(
                         Text(
                             text = pair.second,
                             fontSize = 13.sp,
-                            color = Color.Gray,
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                             fontFamily = FontFamily.SansSerif
                         )
                     }
@@ -587,7 +599,7 @@ fun StudyTimeStep(
         Text(
             text = "You can edit the time later",
             fontSize = 13.sp,
-            color = Color.Gray,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -704,7 +716,7 @@ fun StudySetupPreviewStep(
         Text(
             text = "You can edit the time later",
             fontSize = 13.sp,
-            color = Color.Gray,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
@@ -1140,7 +1152,7 @@ fun ValuePropStep(onNext: () -> Unit) {
                         modifier = Modifier
                             .size(50.dp, 16.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF121212)),
+                            .background(androidx.compose.material3.MaterialTheme.colorScheme.background),
                         contentAlignment = Alignment.Center
                     ) {
                         // Scanning Eye
@@ -1371,7 +1383,7 @@ fun PermissionsStep(
         
         Text(
             text = "Trusted by 2M+ students ❤️",
-            color = Color.Gray,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
@@ -1431,7 +1443,7 @@ fun PermissionItem(
             Text(
                 text = description,
                 fontSize = 12.sp,
-                color = Color.Gray,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 16.sp,
                 fontFamily = FontFamily.SansSerif
             )

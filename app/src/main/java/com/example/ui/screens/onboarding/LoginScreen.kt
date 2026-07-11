@@ -7,6 +7,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import android.webkit.WebView
+import androidx.compose.ui.viewinterop.AndroidView
+
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,6 +18,13 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+
+import coil.compose.AsyncImage
+import coil.ImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import android.os.Build
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -85,7 +95,7 @@ fun LoginScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.LightGray
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 },
@@ -144,7 +154,7 @@ fun LoginScreen(
                 Text(
                     text = "Sync your local session stats, block lists, and streak counts safely across your devices.",
                     fontSize = 15.sp,
-                    color = Color.LightGray,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     lineHeight = 22.sp,
                     fontFamily = FontFamily.SansSerif,
@@ -236,7 +246,7 @@ fun LoginScreen(
                         ) {
                             Text(
                                 text = "Continue as Guest",
-                                color = Color.LightGray,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.SansSerif
@@ -262,7 +272,7 @@ fun LoginScreen(
                     Text(
                         text = "Anchor protects your personal info",
                         fontSize = 11.sp,
-                        color = Color.Gray,
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                         fontFamily = FontFamily.SansSerif,
                         fontWeight = FontWeight.Medium
                     )

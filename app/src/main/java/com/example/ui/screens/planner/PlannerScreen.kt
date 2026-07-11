@@ -96,7 +96,7 @@ fun PlannerScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFF0F0F0F),
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
         bottomBar = {
             BottomNavigationBar(
                 currentRoute = "planner",
@@ -130,7 +130,7 @@ fun PlannerScreen(
             
             Text(
                 text = "Planner",
-                color = Color.White,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 24.dp)
@@ -148,7 +148,7 @@ fun PlannerScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .background(if (isSelected) Color(0xFF163321) else Color(0xFF1C1C1E))
+                            .background(if (isSelected) Color(0xFF163321) else androidx.compose.material3.MaterialTheme.colorScheme.surface)
                             .clickable { selectedDate = date }
                             .padding(horizontal = 16.dp, vertical = 16.dp)
                     ) {
@@ -173,7 +173,7 @@ fun PlannerScreen(
             
             Text(
                 text = "Schedules for $selectedDateStr",
-                color = Color.LightGray,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(horizontal = 24.dp)
@@ -190,7 +190,7 @@ fun PlannerScreen(
                 ) {
                     Text(
                         text = "No schedules for this date.\nTap + to add one.",
-                        color = Color.Gray,
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         lineHeight = 24.sp
                     )
@@ -213,12 +213,12 @@ fun PlannerScreen(
                                 Text(text = schedule.icon, fontSize = 32.sp)
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = schedule.title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    Text(text = schedule.title, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    Text(text = "${schedule.startTime} - ${schedule.endTime}", color = Color.Gray, fontSize = 14.sp)
+                                    Text(text = "${schedule.startTime} - ${schedule.endTime}", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                                 }
                                 IconButton(onClick = { onNavigateToEditSchedule(schedule.date, schedule.id) }) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.LightGray)
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 IconButton(onClick = { viewModel.deleteSchedule(schedule) }) {
                                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red.copy(alpha = 0.7f))

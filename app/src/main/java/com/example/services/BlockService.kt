@@ -99,6 +99,26 @@ if (currentApp != null && currentApp != packageName && !isHomeApp(currentApp)) {
     }
     
 
+        private fun sendRandomMotivation() {
+        val messages = listOf(
+            "Stay focused! You can do this.",
+            "Take a deep breath. Keep up the good work.",
+            "Every minute of focus counts towards your goals.",
+            "You are doing great. Stay on track!",
+            "Anchor your focus. Don't let distractions win."
+        )
+        val msg = messages.random()
+        val notification = NotificationCompat.Builder(this, "block_service")
+            .setContentTitle("Anchor")
+            .setContentText(msg)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify((System.currentTimeMillis() % 10000).toInt(), notification)
+    }
+
     private fun isHomeApp(packageName: String): Boolean {
         val intent = Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_HOME) }
         val resolveInfo = packageManager.resolveActivity(intent, android.content.pm.PackageManager.MATCH_DEFAULT_ONLY)

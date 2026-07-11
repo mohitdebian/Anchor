@@ -123,10 +123,10 @@ fun AddScheduleScreen(
         containerColor = Color(0xFF0F0F0F),
         topBar = {
             TopAppBar(
-                title = { Text("New Session", color = Color.White) },
+                title = { Text("New Session", color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 actions = {
@@ -155,7 +155,7 @@ fun AddScheduleScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 item {
-                    Text("Session Name", color = Color.Gray, fontSize = 14.sp)
+                    Text("Session Name", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = title,
@@ -163,8 +163,8 @@ fun AddScheduleScreen(
                         placeholder = { Text("e.g. Deep Work, Reading", color = Color.DarkGray) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF1C1C1E),
-                            unfocusedContainerColor = Color(0xFF1C1C1E),
+                            focusedContainerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
                             focusedBorderColor = Color(0xFF10B981),
                             unfocusedBorderColor = Color.Transparent,
                             focusedTextColor = Color.White,
@@ -175,47 +175,47 @@ fun AddScheduleScreen(
                 }
                 
                 item {
-                    Text("Date", color = Color.Gray, fontSize = 14.sp)
+                    Text("Date", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xFF1C1C1E))
+                            .background(androidx.compose.material3.MaterialTheme.colorScheme.surface)
                             .padding(16.dp)
                     ) {
-                        Text(displayDateStr, color = Color.White, fontSize = 16.sp)
+                        Text(displayDateStr, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
                     }
                 }
                 
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Start Time", color = Color.Gray, fontSize = 14.sp)
+                            Text("Start Time", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(8.dp))
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(Color(0xFF1C1C1E))
+                                    .background(androidx.compose.material3.MaterialTheme.colorScheme.surface)
                                     .clickable { showTimePicker(true) }
                                     .padding(16.dp)
                             ) {
-                                Text(startTimeStr, color = Color.White, fontSize = 16.sp)
+                                Text(startTimeStr, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
                             }
                         }
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("End Time", color = Color.Gray, fontSize = 14.sp)
+                            Text("End Time", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(8.dp))
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(Color(0xFF1C1C1E))
+                                    .background(androidx.compose.material3.MaterialTheme.colorScheme.surface)
                                     .clickable { showTimePicker(false) }
                                     .padding(16.dp)
                             ) {
-                                Text(endTimeStr, color = Color.White, fontSize = 16.sp)
+                                Text(endTimeStr, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
                             }
                         }
                     }
@@ -223,8 +223,8 @@ fun AddScheduleScreen(
                 
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Select Apps to Block", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text("These apps will be blocked during this session.", color = Color.Gray, fontSize = 14.sp)
+                    Text("Select Apps to Block", color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("These apps will be blocked during this session.", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     if (isLoading) {
@@ -240,7 +240,7 @@ fun AddScheduleScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(if (app.isSelected) Color(0xFF10B981).copy(alpha = 0.15f) else Color(0xFF1C1C1E))
+                                .background(if (app.isSelected) Color(0xFF10B981).copy(alpha = 0.15f) else androidx.compose.material3.MaterialTheme.colorScheme.surface)
                                 .border(1.dp, if (app.isSelected) Color(0xFF10B981).copy(alpha = 0.5f) else Color.Transparent, RoundedCornerShape(16.dp))
                                 .clickable {
                                     apps = apps.map { if (it.packageName == app.packageName) it.copy(isSelected = !it.isSelected) else it }
@@ -262,7 +262,7 @@ fun AddScheduleScreen(
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(
                                 text = app.name,
-                                color = Color.White,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                                 fontSize = 16.sp,
                                 modifier = Modifier.weight(1f)
                             )

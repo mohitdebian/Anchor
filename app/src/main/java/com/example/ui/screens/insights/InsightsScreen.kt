@@ -16,6 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+
+import coil.compose.AsyncImage
+import coil.ImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import android.os.Build
+import androidx.compose.ui.draw.clip
+
 import androidx.compose.ui.Alignment
 
 import androidx.compose.animation.AnimatedVisibility
@@ -57,16 +65,16 @@ fun InsightsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("AI Insights", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = androidx.compose.ui.graphics.Color.White) },
+                title = { Text("AI Insights", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = androidx.compose.ui.graphics.Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
-        containerColor = Color(0xFF121212),
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
         bottomBar = {
             com.example.ui.components.BottomNavigationBar(
                 currentRoute = "insights",
@@ -98,12 +106,34 @@ fun InsightsScreen(
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
+                val aiGifs = listOf(
+                    "https://media.giphy.com/media/26xBEamXwaMSUbV72/giphy.gif",
+                    "https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif",
+                    "https://media.giphy.com/media/l41lFw057lAJQMwg0/giphy.gif"
+                )
+                val randomAiGif = remember { aiGifs.random() }
+                
+                AsyncImage(
+                    model = randomAiGif,
+                    imageLoader = ImageLoader.Builder(LocalContext.current).components {
+                        if (Build.VERSION.SDK_INT >= 28) {
+                            add(ImageDecoderDecoder.Factory())
+                        } else {
+                            add(GifDecoder.Factory())
+                        }
+                    }.build(),
+                    contentDescription = "AI GIF",
+                    modifier = Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(16.dp))
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
                 if (uiState.isLoading) {
                     Box(modifier = Modifier.fillMaxWidth().height(300.dp), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, strokeWidth = 3.dp, modifier = Modifier.size(48.dp))
                             Spacer(modifier = Modifier.height(16.dp))
-                            Text("NVIDIA NIM is analyzing your focus...", color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
+                            Text("NVIDIA NIM is analyzing your focus...", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 } else if (uiState.error != null) {
@@ -136,12 +166,12 @@ fun InsightsScreen(
                                 text = "Zero distractions detected!",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = uiState.genericInsight,
-                                color = Color.LightGray,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.bodyMedium,
                                 textAlign = TextAlign.Center,
                                 lineHeight = 20.sp
@@ -191,7 +221,7 @@ fun InsightCard(insight: com.example.viewmodels.AppInsight) {
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(insight.appName.take(1), fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(insight.appName.take(1), fontWeight = FontWeight.Bold, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
                         }
                     }
                     Spacer(modifier = Modifier.width(16.dp))
@@ -200,12 +230,12 @@ fun InsightCard(insight: com.example.viewmodels.AppInsight) {
                             text = insight.appName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             text = "Unproductive Session",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.Gray
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -231,7 +261,7 @@ fun InsightCard(insight: com.example.viewmodels.AppInsight) {
             Text(
                 text = insight.roast,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.LightGray,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 20.sp
             )
         }

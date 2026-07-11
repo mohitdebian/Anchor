@@ -1,5 +1,6 @@
 package com.example.ui.screens.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,11 +36,12 @@ import com.example.ui.components.GlassCard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    themeManager: com.example.ThemeManager
 ) {
     val scrollState = rememberScrollState()
 
-    var darkTheme by remember { mutableStateOf(true) }
+    val darkTheme by themeManager.isDarkTheme.collectAsState()
     var notifications by remember { mutableStateOf(true) }
     var strictMode by remember { mutableStateOf(false) }
 
@@ -54,7 +57,7 @@ fun SettingsScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
-        containerColor = Color(0xFF121212)
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -68,7 +71,7 @@ fun SettingsScreen(
                 title = "Dark Theme",
                 subtitle = "Use dark appearance",
                 checked = darkTheme,
-                onCheckedChange = { darkTheme = it }
+                onCheckedChange = { themeManager.setDarkTheme(it) }
             )
             
             SettingsToggle(
@@ -88,6 +91,31 @@ fun SettingsScreen(
             SettingsItem(title = "Data & Privacy", subtitle = "Manage your data")
             SettingsItem(title = "Backup & Sync", subtitle = "Google Drive (Mock)")
             SettingsItem(title = "About", subtitle = "Version 1.0.0")
+            val context = androidx.compose.ui.platform.LocalContext.current
+            SettingsButton(
+                title = "Send Random Notification",
+                subtitle = "Test the notification anytime",
+                onClick = {
+                    val messages = listOf(
+                        "Stay focused! You can do this.",
+                        "Take a deep breath. Keep up the good work.",
+                        "Every minute of focus counts towards your goals.",
+                        "You are doing great. Stay on track!",
+                        "Anchor your focus. Don't let distractions win."
+                    )
+                    val msg = messages.random()
+                    val notification = androidx.core.app.NotificationCompat.Builder(context, "block_service")
+                        .setContentTitle("Anchor")
+                        .setContentText(msg)
+                        .setSmallIcon(android.R.drawable.ic_dialog_info)
+                        .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
+                        .setAutoCancel(true)
+                        .build()
+                    val manager = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                    manager.notify((System.currentTimeMillis() % 10000).toInt(), notification)
+                }
+            )
+
         }
     }
 }
@@ -130,6 +158,29 @@ fun SettingsToggle(
 @Composable
 fun SettingsItem(title: String, subtitle: String) {
     GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+
+@Composable
+fun SettingsButton(title: String, subtitle: String, onClick: () -> Unit) {
+    GlassCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
